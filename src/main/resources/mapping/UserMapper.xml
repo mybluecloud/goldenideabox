@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.triz.goldenideabox.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="com.triz.goldenideabox.model.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="account" jdbcType="VARCHAR" property="account" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="wechat" jdbcType="VARCHAR" property="wechat" />
+    <result column="image" jdbcType="VARCHAR" property="image" />
+    <result column="introduction" jdbcType="VARCHAR" property="introduction" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="lasted_login_time" jdbcType="TIMESTAMP" property="lastedLoginTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, account, password, name, sex, phone, email, wechat, image, introduction, state,lasted_login_time
+  </sql>
+  <select id="selectByAccount" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user
+    where account = #{account,jdbcType=VARCHAR}
+  </select>
+  <select id="queryUser" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user
+    where account like CONCAT('%',#{query,jdbcType=VARCHAR},'%') or name like CONCAT('%',#{query,jdbcType=VARCHAR},'%') and state = 0
+  </select>
+  <select id="selectAllUser"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user order by id
+  </select>
+  <select id="selectUserByPage" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user
+    limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  <select id="selectUserByRoleID" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user where id in (select user_id from sys_user_role where role_id = #{roleID,jdbcType=INTEGER})
+  </select>
+  <insert id="addUserToRole" parameterType="java.lang.Integer">
+    insert into sys_user_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userID != null">
+        user_id,
+      </if>
+      <if test="roleID != null">
+        role_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userID != null">
+        #{userID,jdbcType=INTEGER},
+      </if>
+      <if test="roleID != null">
+        #{roleID,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteAllUserFromRole" parameterType="java.lang.Integer">
+
+    delete from sys_user_role
+    where role_id = #{roleID,jdbcType=INTEGER}
+  </delete>
+  <update id="changeUserState" parameterType="java.lang.Integer">
+
+    update t_user
+    <set>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{userID,jdbcType=INTEGER}
+  </update>
+  <delete id="deleteByUserID" parameterType="java.lang.Integer">
+
+    delete from t_user
+    where id = #{userID,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteRoleUserByID" parameterType="java.lang.Integer">
+
+    delete from sys_user_role
+    where role_id = #{roleID,jdbcType=INTEGER}
+  </delete>
+  <insert id="updateRoleUser" parameterType="java.util.List">
+    insert into sys_user_role (user_id,role_id) values
+    <foreach collection="users" item="userID" open="(" close=")" separator="), (">
+      #{userID,jdbcType=INTEGER},#{roleID,jdbcType=INTEGER}
+    </foreach>
+  </insert>
+  <select id="findUserFromRole" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    count(*)
+    from sys_user_role
+    where role_id = #{roleID,jdbcType=INTEGER} and user_id = #{userID,jdbcType=INTEGER}
+  </select>
+  <select id="getPermitUser" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user where id in (select user_id from t_template_user where template_id = #{templateID,jdbcType=INTEGER})
+  </select>
+  <select id="getNoPermitUser" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user where id not in (select user_id from t_template_user where
+    template_id = #{templateID,jdbcType=INTEGER})  and id in (select user_id from sys_user_role where role_id = 2)
+  </select>
+  <insert id="updatePermitUser" parameterType="java.util.List">
+    insert into t_template_user (user_id,template_id) values
+    <foreach collection="users" item="userID" open="(" close=")" separator="), (">
+      #{userID,jdbcType=INTEGER},#{templateID,jdbcType=INTEGER}
+    </foreach>
+  </insert>
+  <delete id="deletePermitUserByTemplateID" parameterType="java.lang.Integer">
+
+    delete from t_template_user
+    where template_id = #{templateID,jdbcType=INTEGER}
+  </delete>
+  <select id="selectUserBystate" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_user
+    where state = #{account,jdbcType=INTEGER}
+  </select>
+  <insert id="regedit" parameterType="com.triz.goldenideabox.model.User">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+    -->
+    insert into t_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="account != null">
+        account,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="wechat != null">
+        wechat,
+      </if>
+      <if test="image != null">
+        image,
+      </if>
+      <if test="introduction != null">
+        introduction,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="lastedLoginTime != null">
+        lasted_login_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="account != null">
+        #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="wechat != null">
+        #{wechat,jdbcType=VARCHAR},
+      </if>
+      <if test="image != null">
+        #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null">
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="lastedLoginTime != null">
+        #{lastedLoginTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.triz.goldenideabox.model.User">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+    -->
+    update t_user
+    <set>
+      <if test="account != null">
+        account = #{account,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="wechat != null">
+        wechat = #{wechat,jdbcType=VARCHAR},
+      </if>
+      <if test="image != null">
+        image = #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null">
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="lastedLoginTime != null">
+        lasted_login_time = #{lastedLoginTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateLoginTime" parameterType="java.lang.Integer">
+    <!--
+      WARNING - @mbg.generated
+      This element is automatically generated by MyBatis Generator, do not modify.
+    -->
+    update t_user
+    set lasted_login_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

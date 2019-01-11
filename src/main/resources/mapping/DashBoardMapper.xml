@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.triz.goldenideabox.dao.DashBoardMapper">
+  <resultMap id="BaseResultMap" type="com.triz.goldenideabox.model.DashBoard">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="patent_count" jdbcType="INTEGER" property="patentCount" />
+    <result column="display_config" jdbcType="VARCHAR" property="displayConfig" />
+  </resultMap>
+
+  <select id="selectPatentCount" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+      u.id as id,u.name as name, IFNULL(count(c.creator),0) as patent_count
+    from
+      t_user u
+    left join sys_user_role ur on u.id = ur.user_id
+    left join sys_role_resource rr on rr.role_id = ur.role_id
+    left join sys_resource r on r.id = rr.resource_id
+    left join t_patent c on c.creator = u.id
+    where
+      r.res_url = #{resUrl,jdbcType=VARCHAR} group by u.id
+  </select>
+  <select id="getChartsData" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select round(t1.num / t2.total * 100, 2) as scale,t1.num as num, t1.`name` as name from
+    ( select count(value) as num, `value` as name from t_patent_property where sort_id = #{id,jdbcType=INTEGER} group by value ) t1,
+    ( select count(value) as total from t_patent_property where sort_id = #{id,jdbcType=INTEGER} ) t2;
+  </select>
+</mapper>

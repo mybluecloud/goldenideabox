@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.triz.goldenideabox.dao.RoleMapper">
+  <resultMap id="BaseResultMap" type="com.triz.goldenideabox.model.Role">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, name, remark
+  </sql>
+  <select id="selectAllRole"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_role order by id
+  </select>
+  <select id="selectRoleByPage" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_role
+    limit #{pageNum,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  <select id="selectRoleByID" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_role
+    where id = #{roleID,jdbcType=INTEGER}
+  </select>
+  <insert id="insertRole" parameterType="com.triz.goldenideabox.model.Role" useGeneratedKeys="true" keyProperty="id">
+
+    insert into sys_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+
+      <if test="name != null">
+        name,
+      </if>
+
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteRoleByID" parameterType="java.lang.Integer">
+
+    delete from sys_role
+    where id = #{roleID,jdbcType=INTEGER}
+  </delete>
+  <update id="updateRole" parameterType="com.triz.goldenideabox.model.Role">
+
+    update sys_role
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="loadUserRoles" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_role
+    where id in (select role_id from sys_user_role where user_id = #{roleID,jdbcType=INTEGER} )
+  </select>
+  <select id="queryRole" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_role
+    where name like CONCAT('%',#{query,jdbcType=VARCHAR},'%')
+  </select>
+</mapper>

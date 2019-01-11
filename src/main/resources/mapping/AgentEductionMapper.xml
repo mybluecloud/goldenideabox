@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.triz.goldenideabox.dao.AgentEductionMapper">
+  <resultMap id="BaseResultMap" type="com.triz.goldenideabox.model.AgentEduction">
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="year" jdbcType="INTEGER" property="year" />
+    <result column="school" jdbcType="VARCHAR" property="school" />
+    <result column="major" jdbcType="VARCHAR" property="major" />
+    <result column="degree" jdbcType="VARCHAR" property="degree" />
+  </resultMap>
+  <insert id="insert" parameterType="com.triz.goldenideabox.model.AgentEduction">
+    insert into t_agent_eduction (user_id, year, school, 
+      major, degree)
+    values (#{userId,jdbcType=INTEGER}, #{year,jdbcType=INTEGER}, #{school,jdbcType=VARCHAR}, 
+      #{major,jdbcType=VARCHAR}, #{degree,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.triz.goldenideabox.model.AgentEduction">
+    insert into t_agent_eduction
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="year != null">
+        year,
+      </if>
+      <if test="school != null">
+        school,
+      </if>
+      <if test="major != null">
+        major,
+      </if>
+      <if test="degree != null">
+        degree,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="year != null">
+        #{year,jdbcType=INTEGER},
+      </if>
+      <if test="school != null">
+        #{school,jdbcType=VARCHAR},
+      </if>
+      <if test="major != null">
+        #{major,jdbcType=VARCHAR},
+      </if>
+      <if test="degree != null">
+        #{degree,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>
