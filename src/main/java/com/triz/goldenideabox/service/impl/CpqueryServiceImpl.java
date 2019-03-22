@@ -1,6 +1,6 @@
 package com.triz.goldenideabox.service.impl;
 
-import com.triz.goldenideabox.common.schedule.AutoUpdateCaseState;
+import com.triz.goldenideabox.common.schedule.cpquery.CpqueryInfoUpdate;
 import com.triz.goldenideabox.dao.CpqueryMapper;
 import com.triz.goldenideabox.dao.CpqueryResultMapper;
 import com.triz.goldenideabox.dao.PatentRecordMapper;
@@ -51,7 +51,7 @@ public class CpqueryServiceImpl implements CpqueryService {
     private PatentRecordMapper patentRecordMapper;
 
     @Autowired
-    private AutoUpdateCaseState autoUpdateCaseState;
+    private CpqueryInfoUpdate cpqueryInfoUpdate;
 
     private static Logger logger = LoggerFactory.getLogger("cpqueryService");
 
@@ -59,16 +59,6 @@ public class CpqueryServiceImpl implements CpqueryService {
 
     @Value("${goldenideabox.path.temp}")
     private String tempPath;
-
-//    @PostConstruct
-//    public void init() {
-//        if (httpclient == null) {
-//            HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
-////            HttpHost proxy = new HttpHost("127.0.0.1",8888);
-////            httpclient = httpClientBuilder.setProxy(proxy).build();
-//            httpclient = httpClientBuilder.build();
-//        }
-//    }
 
     @Override
     public List<Cpquery> getCpqueryInfo() {
@@ -97,7 +87,7 @@ public class CpqueryServiceImpl implements CpqueryService {
 
     @Override
     public void stopCpquery() {
-        AutoUpdateCaseState.isRun = false;
+        CpqueryInfoUpdate.isRun = false;
     }
 
     @Override
@@ -179,9 +169,9 @@ public class CpqueryServiceImpl implements CpqueryService {
 
             httpget.setHeader("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36");
-            httpget.setHeader("accept", "image/webp,image/apng,image/*,*/*;q=0.8");
-            httpget.setHeader("accept-encoding", "gzip, deflate");
-            httpget.setHeader("accept-language", "zh-CN,zh;q=0.9");
+            httpget.setHeader("Accept", "image/webp,image/apng,image/*,*/*;q=0.8");
+            httpget.setHeader("Accept-encoding", "gzip, deflate");
+            httpget.setHeader("Accept-language", "zh-CN,zh;q=0.9");
             httpget.setHeader("Cache-Control", "no-cache");
             httpget.setHeader("Connection", "keep-alive");
             //httpget.setHeader("Cookie", jsessionID);
@@ -190,7 +180,7 @@ public class CpqueryServiceImpl implements CpqueryService {
             httpget.setHeader("Referer", "http://cpquery.sipo.gov.cn/");
             httpget.setHeader("X-Requested-With", "XMLHttpRequest");
             httpresponse = httpclient.execute(httpget);
-            if (httpresponse.getStatusLine().getStatusCode() != 200.) {
+            if (httpresponse.getStatusLine().getStatusCode() != 200) {
                 logger.error("请求验证码图片失败",httpresponse);
                 return "";
             }
@@ -342,7 +332,7 @@ public class CpqueryServiceImpl implements CpqueryService {
 
 
     @Override
-    public String beginQuery(int id) {
+    public String beginQuery(int id,String checks,boolean isWhole) {
         CloseableHttpResponse httpresponse = null;
         try {
             Cpquery cpquery = cpqueryMapper.selectByPrimaryKey(id);
@@ -375,16 +365,14 @@ public class CpqueryServiceImpl implements CpqueryService {
             //httppost.setHeader("Cookie", jsessionID);
 
             httpresponse = httpclient.execute(httppost);
-            //System.out.println(EntityUtils.toString(httpresponse.getEntity()));
             SAXReader reader = new SAXReader();
             org.dom4j.Document doc = reader.read(httpresponse.getEntity().getContent());
+
             org.dom4j.Element root = doc.getRootElement();
             String retcode = root.element("error-code").getTextTrim();
 
             if (retcode.equalsIgnoreCase("000000")) {
-                //String ssoToken = httpresponse.getHeaders("Set-Cookie")[0].getValue();
-                autoUpdateCaseState.executeCpquery(httpclient,cpquery);
-
+                cpqueryInfoUpdate.executeCpquery(httpclient,cpquery,checks,isWhole);
                 return "000000";
             } else {
                 logger.error("登录专利查询网站失败",retcode);

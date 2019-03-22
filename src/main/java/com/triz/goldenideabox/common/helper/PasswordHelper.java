@@ -28,12 +28,17 @@ public class PasswordHelper {
     }
 
     public static void main(String[] args) {
-        PasswordHelper passwordHelper = new PasswordHelper();
-        User user = new User();
-        user.setAccount("zhangqi");
-        user.setPassword("zhangqi");
-        passwordHelper.encryptPassword(user);
-        System.out.println(user.getPassword());
+        //PasswordHelper passwordHelper = new PasswordHelper();
+        //User user = new User();
+        //user.setAccount("zhangqi");
+        //user.setPassword("zhangqi");
+        //passwordHelper.encryptPassword(user);
+        //System.out.println(user.getPassword());
+        String type = "0301";
+        if (type.equalsIgnoreCase("01") || type.equalsIgnoreCase("02")
+                || !type.equalsIgnoreCase("03")) {
+            System.out.println(type);
+        }
 
     }
 }

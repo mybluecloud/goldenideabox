@@ -10,7 +10,7 @@ public class Patent implements Serializable {
 
     private Date time;
 
-    private Template template;
+    private Integer templateId;
 
     private Order order;
 
@@ -42,12 +42,12 @@ public class Patent implements Serializable {
         this.time = time;
     }
 
-    public Template getTemplate() {
-        return template;
+    public Integer getTemplateId() {
+        return templateId;
     }
 
-    public void setTemplate(Template template) {
-        this.template = template;
+    public void setTemplateId(Integer templateId) {
+        this.templateId = templateId;
     }
 
     public Order getOrder() {

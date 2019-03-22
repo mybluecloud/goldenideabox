@@ -1,7 +1,18 @@
 package com.triz.goldenideabox.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.triz.goldenideabox.dao.CpqueryAnnounceInfoMapper;
+import com.triz.goldenideabox.dao.CpqueryApplicationInfoMapper;
+import com.triz.goldenideabox.dao.CpqueryCostInfoMapper;
+import com.triz.goldenideabox.dao.CpqueryPostInfoMapper;
+import com.triz.goldenideabox.dao.CpqueryResultMapper;
+import com.triz.goldenideabox.dao.CpqueryReviewInfoMapper;
 import com.triz.goldenideabox.dao.PatentRecordMapper;
+import com.triz.goldenideabox.model.CpqueryAnnounceInfo;
+import com.triz.goldenideabox.model.CpqueryApplicationInfo;
+import com.triz.goldenideabox.model.CpqueryCostInfo;
+import com.triz.goldenideabox.model.CpqueryPostInfo;
+import com.triz.goldenideabox.model.CpqueryReviewInfo;
 import com.triz.goldenideabox.model.DashBoard;
 import com.triz.goldenideabox.model.DisplayConfig;
 import com.triz.goldenideabox.model.Document;
@@ -53,6 +64,24 @@ public class PatentServiceImpl implements PatentService {
     private PatentRecordMapper patentRecordMapper;
 
 
+    @Autowired
+    private CpqueryResultMapper cpqueryResultMapper;
+
+    @Autowired
+    private CpqueryApplicationInfoMapper cpqueryApplicationInfoMapper;
+
+    @Autowired
+    private CpqueryReviewInfoMapper cpqueryReviewInfoMapper;
+
+    @Autowired
+    private CpqueryCostInfoMapper cpqueryCostInfoMapper;
+
+    @Autowired
+    private CpqueryPostInfoMapper cpqueryPostInfoMapper;
+
+    @Autowired
+    private CpqueryAnnounceInfoMapper cpqueryAnnounceInfoMapper;
+
     @Override
     public List<Order> getAppointOrder() {
 
@@ -75,7 +104,6 @@ public class PatentServiceImpl implements PatentService {
     public List<PatentRecord> getPatentRecords(int id) {
         return patentRecordMapper.getPatentRecords(id);
     }
-
 
     @Override
     public List<DashBoard> getUserList(String resUrl) {
@@ -227,5 +255,36 @@ public class PatentServiceImpl implements PatentService {
     @Override
     public List<TemplateProperty> getSearchCondition(int templateId) {
         return templatePropertyMapper.getSearchCondition(templateId);
+    }
+
+
+    @Override
+    public String getPatentApplicationNumber(int id) {
+        return cpqueryResultMapper.getPatentApplicationNumber(id);
+    }
+
+    @Override
+    public CpqueryApplicationInfo getCpqueryApplication(String applicationNumber) {
+        return cpqueryApplicationInfoMapper.selectByPrimaryKey(applicationNumber);
+    }
+
+    @Override
+    public List<CpqueryReviewInfo> getCpqueryReview(String applicationNumber) {
+        return cpqueryReviewInfoMapper.selectFileListByApplicationNumber(applicationNumber);
+    }
+
+    @Override
+    public CpqueryCostInfo getCpqueryCost(String applicationNumber) {
+        return cpqueryCostInfoMapper.selectByPrimaryKey(applicationNumber);
+    }
+
+    @Override
+    public CpqueryPostInfo getCpqueryPost(String applicationNumber) {
+        return cpqueryPostInfoMapper.selectByPrimaryKey(applicationNumber);
+    }
+
+    @Override
+    public CpqueryAnnounceInfo getCpqueryAnnounce(String applicationNumber) {
+        return cpqueryAnnounceInfoMapper.selectByPrimaryKey(applicationNumber);
     }
 }

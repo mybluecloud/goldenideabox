@@ -10,14 +10,14 @@
   <meta content="萃智知识产权管理平台" name="description"/>
   <meta content="" name="author"/>
   <!-- BEGIN GLOBAL MANDATORY STYLES -->
-  <link href="${request.contextPath}/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-  <link href="${request.contextPath}/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+  <link href="${request.contextPath}/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+  <link href="${request.contextPath}/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
   <link href="${request.contextPath}/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
 
 
   <!-- END GLOBAL MANDATORY STYLES -->
   <!-- BEGIN PAGE LEVEL PLUGINS -->
-  <link href="${request.contextPath}/global/plugins/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <link href="${request.contextPath}/global/plugins/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" type="text/css"/>
   <link href="${request.contextPath}/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css" rel="stylesheet"
         type="text/css"/>
   <link href="${request.contextPath}/global/plugins/bootstrap-modal/css/bootstrap-modal.css" rel="stylesheet"
@@ -35,25 +35,33 @@
         id="style_color"/>
   <!-- END THEME LAYOUT STYLES -->
   <style>
-    .div_point-1{
-      background-image:url("${request.contextPath}/layouts/layout/backstage/img/click_1.png");
-      background-position:center;
-      background-size:32px 32px;
+    .div_point-1 {
+      background-image: url("${request.contextPath}/layouts/layout/backstage/img/click_1.png");
+      background-position: center;
+      background-size: 32px 32px;
     }
-    .div_point-2{
-      background-image:url("${request.contextPath}/layouts/layout/backstage/img/click_2.png");
-      background-position:center;
-      background-size:32px 32px;
+
+    .div_point-2 {
+      background-image: url("${request.contextPath}/layouts/layout/backstage/img/click_2.png");
+      background-position: center;
+      background-size: 32px 32px;
     }
-    .div_point-3{
-      background-image:url("${request.contextPath}/layouts/layout/backstage/img/click_3.png");
-      background-position:center;
-      background-size:32px 32px;
+
+    .div_point-3 {
+      background-image: url("${request.contextPath}/layouts/layout/backstage/img/click_3.png");
+      background-position: center;
+      background-size: 32px 32px;
     }
-    .div_icon-point{
-      position:absolute; width:32px; height:32px; cursor:pointer; background-repeat:no-repeat;
+
+    .div_icon-point {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      background-repeat: no-repeat;
     }
-    .table-actions-wrapper{
+
+    .table-actions-wrapper {
       padding-bottom: 20px
     }
   </style>
@@ -113,8 +121,6 @@
                   </table>
 
 
-
-
                   <!-- 创建任务列表 begin-->
                   <div id="task_dialog" class="portlet box blue-hoki modal fade">
                     <div class="portlet-title">
@@ -130,59 +136,59 @@
                           <div class="form-group">
                             <label class="col-md-3 control-label">账号</label>
                             <div class="col-md-6">
-                              <input id="account" name="account" type="text" class="form-control"  >
+                              <input id="account" name="account" type="text" class="form-control">
                             </div>
-                            <label for="account" ></label>
+                            <label for="account"></label>
                           </div>
                           <div class="form-group">
                             <label class="col-md-3 control-label">密码</label>
                             <div class="col-md-6">
-                              <input id="password" name="password" type="password" class="form-control"  >
+                              <input id="password" name="password" type="password" class="form-control">
                             </div>
-                            <label for="password" ></label>
+                            <label for="password"></label>
                           </div>
                           <div class="form-group">
                             <label class="col-md-3 control-label">模板</label>
                             <div class="col-md-6">
                               <select id="template" name="template" class="form-control" required>
-                                <option value="" >请选择</option>
+                                <option value="">请选择</option>
                               </select>
                             </div>
-                            <label for="template" ></label>
+                            <label for="template"></label>
                           </div>
                           <div class="form-group">
                             <label class="col-md-3 control-label">匹配字段</label>
                             <div class="col-md-6">
                               <select id="matchFiled" name="matchFiled" class="form-control" required>
-                                <option value="" >请选择</option>
+                                <option value="">请选择</option>
                               </select>
                             </div>
-                            <label for="matchFiled" ></label>
+                            <label for="matchFiled"></label>
                           </div>
                           <div class="form-group">
                             <label class="col-md-3 control-label">匹配字符</label>
                             <div class="col-md-6">
-                              <input id="matchChar" name="matchChar" type="text" class="form-control"  placeholder="多个条件可用竖线隔开，比如a|b">
+                              <input id="matchChar" name="matchChar" type="text" class="form-control" placeholder="多个条件可用竖线隔开，比如a|b">
                             </div>
-                            <label for="matchChar" ></label>
+                            <label for="matchChar"></label>
                           </div>
                           <div class="form-group">
-                            <label  class="col-md-3 control-label">申请号字段</label>
+                            <label class="col-md-3 control-label">申请号字段</label>
                             <div class="col-md-6">
                               <select id="anFiled" name="anFiled" class="form-control" required>
-                                <option value="" >请选择</option>
+                                <option value="">请选择</option>
                               </select>
                             </div>
-                            <label for="anFiled" ></label>
+                            <label for="anFiled"></label>
                           </div>
                           <div class="form-group">
                             <label class="col-md-3 control-label">官方状态字段</label>
                             <div class="col-md-6">
                               <select id="statusFiled" name="statusFiled" class="form-control" required>
-                                <option value="" >请选择</option>
+                                <option value="">请选择</option>
                               </select>
                             </div>
-                            <label for="statusFiled" ></label>
+                            <label for="statusFiled"></label>
                           </div>
 
 
@@ -190,7 +196,7 @@
                         <div class="form-actions">
                           <div class="row">
                             <div class="col-md-offset-4 col-md-8">
-                              <button type="submit"  onclick="saveTask()"
+                              <button type="submit" onclick="saveTask()"
                                       class="btn btn-circle blue-madison">确定
                               </button>
                               <button type="button" data-dismiss="modal"
@@ -205,19 +211,83 @@
                   </div>
                   <!--创建任务列表 end-->
                   <!--显示验证码 begin-->
-                  <div id="captcha_dialog" class="portlet box blue-hoki modal fade" >
+                  <div id="captcha_dialog" class="portlet box blue-hoki modal fade">
                     <div class="portlet-body">
-                      <div id="imgyzm_dz" style=" bottom: 30px; ">
-                        <img id="jcaptchaimage" src="" style="border-radius: 4px;">
+                      <div class="row">
+                        <div class="col-md-8 ">
+                          <div id="imgyzm_dz" style=" bottom: 30px; ">
+                            <img id="jcaptchaimage" src="" style="border-radius: 4px;">
 
-                        <div id="reload_dz" title="刷新" style="position: absolute; bottom: 260px; left: 280px; height: 0px;">
-                          <img class="img_reload_dz" src="${request.contextPath}/layouts/layout/backstage/img/reload.png" style="border-radius: 4px;">
+                            <div id="reload_dz" title="刷新" style="position: absolute; bottom: 260px; left: 280px; height: 0px;">
+                              <img class="img_reload_dz" src="${request.contextPath}/layouts/layout/backstage/img/reload.png"
+                                   style="border-radius: 4px;">
+                            </div>
+                          </div>
+                          <div class="selectyzm_tips_dz" style="line-height: 35px;position:relative;">
+                            <span id="selectyzm_text_dz" style="color: rgb(144, 144, 144);"></span>
+                            <input type="hidden" id="id">
+                          </div>
+                        </div>
+                        <div class="col-md-4 ">
+                          <div class="md-radio-inline">
+                            <div class="md-radio has-info">
+                              <input type="radio" id="wholeCase" name="caseRadio" class="md-radiobtn" value="true" checked>
+                              <label for="wholeCase">
+                                <span></span>
+                                <span class="check"></span>
+                                <span class="box"></span> 全部案件 </label>
+                            </div>
+                            <div class="md-radio has-error">
+                              <input type="radio" id="failCase" name="caseRadio" class="md-radiobtn" value="false" >
+                              <label for="failCase">
+                                <span></span>
+                                <span class="check"></span>
+                                <span class="box"></span> 失败案件 </label>
+                            </div>
+                          </div>
+                          <div class="form-group form-md-checkboxes">
+
+                            <div class="md-checkbox-list">
+                              <div class="md-checkbox has-info">
+                                <input type="checkbox" id="application" disabled class="md-check" checked>
+                                <label for="application">
+                                  <span></span>
+                                  <span class="check"></span>
+                                  <span class="box"></span> 申请信息 </label>
+                              </div>
+                              <div class="md-checkbox has-error">
+                                <input type="checkbox" id="review" class="md-check">
+                                <label for="review">
+                                  <span></span>
+                                  <span class="check"></span>
+                                  <span class="box"></span> 审查信息 </label>
+                              </div>
+                              <div class="md-checkbox has-warning">
+                                <input type="checkbox" id="cost" class="md-check">
+                                <label for="cost">
+                                  <span></span>
+                                  <span class="check"></span>
+                                  <span class="box"></span> 费用信息 </label>
+                              </div>
+                              <div class="md-checkbox has-success">
+                                <input type="checkbox" id="post" class="md-check">
+                                <label for="post">
+                                  <span></span>
+                                  <span class="check"></span>
+                                  <span class="box"></span> 发文信息 </label>
+                              </div>
+                              <div class="md-checkbox has-info">
+                                <input type="checkbox" id="announce" class="md-check">
+                                <label for="announce">
+                                  <span></span>
+                                  <span class="check"></span>
+                                  <span class="box"></span> 公布公告 </label>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div class="selectyzm_tips_dz" style="line-height: 35px;position:relative;">
-                        <span id="selectyzm_text_dz" style="color: rgb(144, 144, 144);"></span>
-                        <input type="hidden" id="id" >
-                      </div>
+
 
                     </div>
                   </div>
@@ -234,32 +304,33 @@
                 </div>
                 <div class="portlet-body">
                   <div class="table-container">
-                    <div class="table-actions-wrapper">
-
-                      <select id="q_date" class="bs-select form-control input-small"  data-style="btn-info" title="选择日期">
-                        <option value="" >全部</option>
-                      </select>
-                      <select id="q_number" class="bs-select form-control input-small" data-style="btn-success" title="选择任务编号">
-                        <option value="" >全部</option>
-                      </select>
-                      <select id="q_status" class="bs-select form-control input-small" data-style="btn-primary" title="选择任务状态">
-                        <option value="" >全部</option>
-                      </select>
-
-                    </div>
                     <table
                         class="table table-striped table-bordered table-hover table-checkable order-column"
                         id="recordlist">
+                      <thead></thead>
+                      <tbody></tbody>
+                      <tfoot>
+                      <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                      </tr>
+                      </tfoot>
                     </table>
                   </div>
 
                 </div>
               </div>
 
-              <div class="note note-info col-md-6">
+              <div class="note note-info col-md-12">
                     <#if logs?exists>
                       <#list logs as log>
-                              <label >${(log.createTime?string("yyyy-MM-dd HH:mm:ss"))!}&nbsp;&nbsp;${log.content}</label><br>
+                              <label>${(log.createTime?string("yyyy-MM-dd HH:mm:ss"))!}&nbsp;&nbsp;${log.content}</label><br>
                       </#list>
                     </#if>
               </div>
@@ -324,7 +395,7 @@
       </#if>
 
     data.properties = property;
-    datas[data.id] =data;
+    datas[data.id] = data;
     </#list>
   </#if>
 

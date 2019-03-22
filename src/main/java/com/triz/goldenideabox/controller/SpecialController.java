@@ -194,7 +194,7 @@ public class SpecialController {
             for (int i = 1; i < count; i++) {
                 Patent patent = new Patent();
                 patent.setId(lastPatentID + i - 1);
-                patent.setTemplate(template);
+                patent.setTemplateId(template.getId());
                 patent.setCreator(user);
                 patentService.importPatent(patent);
 
@@ -254,4 +254,11 @@ public class SpecialController {
 
         return "common/order";
     }
+
+    @RequestMapping("/flipbook")
+    public String flipbook(Model model) {
+
+        return "backstage/flipbook";
+    }
+
 }

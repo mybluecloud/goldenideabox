@@ -23,6 +23,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Value("${goldenideabox.path.temp}")
     private String temp;
 
+    @Value("${goldenideabox.path.image}")
+    private String image;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
@@ -32,6 +35,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/file/**").addResourceLocations("file:" + file);
         registry.addResourceHandler("/document/**").addResourceLocations("file:" + document);
         registry.addResourceHandler("/temp/**").addResourceLocations("file:" + temp);
+        registry.addResourceHandler("/image/**").addResourceLocations("file:" + image);
     }
 
     @Override

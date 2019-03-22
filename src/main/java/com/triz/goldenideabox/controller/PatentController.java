@@ -97,7 +97,7 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/users", produces = "application/json;charset=UTF-8")
     public Object checkUserList(
-        @RequestParam(required = true) String resUrl) {
+            @RequestParam(required = true) String resUrl) {
 
         List<DashBoard> lst = patentService.getUserList(resUrl);
         Map<Object, Object> info = new HashMap<Object, Object>();
@@ -108,11 +108,11 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/appoint", produces = "application/json;charset=UTF-8")
     public int appointPatent(
-        @RequestParam(required = true) int userID,
-        @RequestParam(required = true) String orderIDs) {
+            @RequestParam(required = true) int userID,
+            @RequestParam(required = true) String orderIDs) {
 
         return patentService
-            .appointPatent(userID, ParameterHelper.StringToIntegerList(orderIDs, ","));
+                .appointPatent(userID, ParameterHelper.StringToIntegerList(orderIDs, ","));
     }
 
     @ResponseBody
@@ -136,7 +136,7 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/templateproperty", produces = "application/json;charset=UTF-8")
     public Object templateProperty(@RequestParam(required = true) int id,
-        @RequestParam(required = true) int patentID) {
+            @RequestParam(required = true) int patentID) {
 
         patentService.applyTemplate(patentID, id);
         List<TemplateProperty> lst = patentService.getTemplateProperty(id);
@@ -147,9 +147,9 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/edit", produces = "application/json;charset=UTF-8")
     public Object editProperty(
-        @RequestParam(required = false) String name,
-        @RequestParam(required = false) int pk,
-        @RequestParam(required = false) String value) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) int pk,
+            @RequestParam(required = false) String value) {
 
         Map<Object, Object> info = new HashMap<Object, Object>();
         int result = 0;
@@ -167,13 +167,13 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/upload", produces = "application/json;charset=UTF-8")
     public Object uploadFile(@RequestParam("files[]") MultipartFile file,
-        @RequestParam("sortId") int sortId,
-        @RequestParam("patentId") int patentId) {
+            @RequestParam("sortId") int sortId,
+            @RequestParam("patentId") int patentId) {
         Map<Object, Object> info = new HashMap<Object, Object>();
 
         String path = filePath + patentId + "//";
         String filemame = UUID.randomUUID().toString().replace("-", "").toLowerCase()
-            + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+                + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
         int result = 0;
 
         result = FileUploadHelper.upload(file, path, filemame);
@@ -232,7 +232,8 @@ public class PatentController {
                 try {
                     //response.setContentType("application/force-download");
                     response.setContentType("application/octet-stream");
-                    String name = URLEncoder.encode(doc.getName(), "UTF-8").replaceAll("\\+", "%20").replaceAll("%28", "\\(").replaceAll("%29", "\\)").replaceAll("%3B", ";").replaceAll("%40", "@").replaceAll("%23", "\\#").replaceAll("%26", "\\&").replaceAll("%2C", "\\,");
+                    String name = URLEncoder.encode(doc.getName(), "UTF-8").replaceAll("\\+", "%20").replaceAll("%28", "\\(").replaceAll("%29", "\\)")
+                            .replaceAll("%3B", ";").replaceAll("%40", "@").replaceAll("%23", "\\#").replaceAll("%26", "\\&").replaceAll("%2C", "\\,");
                     response.addHeader("Content-Disposition", "attachment;fileName=" + name);
                     byte[] buffer = new byte[1024];
 
@@ -271,8 +272,8 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/deletefile", produces = "application/json;charset=UTF-8")
     public Object deleteFile(@RequestParam("sortId") int sortId,
-        @RequestParam("patentId") int patentId,
-        @RequestParam(required = false) int id) {
+            @RequestParam("patentId") int patentId,
+            @RequestParam(required = false) int id) {
 
         Map<Object, Object> info = new HashMap<Object, Object>();
         int result = 0;
@@ -295,7 +296,7 @@ public class PatentController {
         property.setSortId(sortId);
         property.setValue(document.getId() + ",");
 
-        result = patentService.deleteFileProperty(property,document);
+        result = patentService.deleteFileProperty(property, document);
         info.put("result", result);
 
         return info;
@@ -304,13 +305,13 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/patentTable", produces = "application/json;charset=UTF-8")
     public Object patentTable(@RequestParam("configId") int configId,
-        @RequestParam("templateId") int templateId,
-        @RequestParam("filter") String filter,
-        @RequestParam("order") String order,
-        @RequestParam("visible") String visible,
-        @RequestParam("left") int left,
-        @RequestParam("right") int right,
-        @RequestParam("pageLength") int pageLength) {
+            @RequestParam("templateId") int templateId,
+            @RequestParam("filter") String filter,
+            @RequestParam("order") String order,
+            @RequestParam("visible") String visible,
+            @RequestParam("left") int left,
+            @RequestParam("right") int right,
+            @RequestParam("pageLength") int pageLength) {
 
         Map<Object, Object> info = new HashMap<Object, Object>();
         if (configId == 0) {
@@ -345,7 +346,7 @@ public class PatentController {
             }
 
             List<Map<String, String>> columns = patentService
-                .selectPropertyName(config.getTemplateId(), config.getOrderList(), config.getVisibleList());
+                    .selectPropertyName(config.getTemplateId(), config.getOrderList(), config.getVisibleList());
 
             info.put("columns", columns);
             info.put("order", config.getOrderList());
@@ -362,12 +363,12 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/patents", produces = "application/json;charset=UTF-8")
     public Object patents(HttpServletRequest request, @RequestParam("configId") int configId,
-        @RequestParam("templateId") int templateId,
-        @RequestParam("filter") String filter,
-        @RequestParam("draw") int draw,
-        @RequestParam("start") int start,
-        @RequestParam("length") int length,
-        @RequestParam("appoint") boolean appoint
+            @RequestParam("templateId") int templateId,
+            @RequestParam("filter") String filter,
+            @RequestParam("draw") int draw,
+            @RequestParam("start") int start,
+            @RequestParam("length") int length,
+            @RequestParam("appoint") boolean appoint
 
     ) {
         int userId = 0;
@@ -401,7 +402,7 @@ public class PatentController {
             }
 
             List<JSONObject> lst = patentService
-                .getPatents(userId, config.getTemplateId(), config.getFilter(), start, length, orderIndex, order, search);
+                    .getPatents(userId, config.getTemplateId(), config.getFilter(), start, length, orderIndex, order, search);
 
             info.put("data", lst);
 
@@ -418,15 +419,15 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/saveLable", produces = "application/json;charset=UTF-8")
     public Object saveLable(
-        @RequestParam("configId") int configId,
-        @RequestParam("configname") String configname,
-        @RequestParam("templateId") int templateId,
-        @RequestParam("filter") String filter,
-        @RequestParam("order") String order,
-        @RequestParam("visible") String visible,
-        @RequestParam("left") int left,
-        @RequestParam("right") int right,
-        @RequestParam("pageLength") int pageLength) {
+            @RequestParam("configId") int configId,
+            @RequestParam("configname") String configname,
+            @RequestParam("templateId") int templateId,
+            @RequestParam("filter") String filter,
+            @RequestParam("order") String order,
+            @RequestParam("visible") String visible,
+            @RequestParam("left") int left,
+            @RequestParam("right") int right,
+            @RequestParam("pageLength") int pageLength) {
 
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         DisplayConfig config = new DisplayConfig();
@@ -459,8 +460,8 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/renameLable", produces = "application/json;charset=UTF-8")
     public Object renameLable(
-        @RequestParam("configId") int configId,
-        @RequestParam("configname") String configname) {
+            @RequestParam("configId") int configId,
+            @RequestParam("configname") String configname) {
 
         DisplayConfig config = new DisplayConfig();
 
@@ -475,14 +476,14 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/deleteLable", produces = "application/json;charset=UTF-8")
     public Object deleteLable(
-        @RequestParam(required = true) int configId) {
+            @RequestParam(required = true) int configId) {
         return patentService.deleteDisplayConfig(configId);
     }
 
     @ResponseBody
     @RequestMapping(value = "/search", produces = "application/json;charset=UTF-8")
     public Object getTemplate(
-        @RequestParam(required = true) int templateId) {
+            @RequestParam(required = true) int templateId) {
 
         List<TemplateProperty> lst = patentService.getSearchCondition(templateId);
 
@@ -504,9 +505,9 @@ public class PatentController {
     @ResponseBody
     @RequestMapping(value = "/export", produces = "application/json;charset=UTF-8")
     public String export(
-        @RequestParam(required = true) int configId,
-        @RequestParam(required = true) int templateId,
-        @RequestParam("appoint") boolean appoint) {
+            @RequestParam(required = true) int configId,
+            @RequestParam(required = true) int templateId,
+            @RequestParam("appoint") boolean appoint) {
 
         int userId = 0;
         String fileName = "";
@@ -521,20 +522,20 @@ public class PatentController {
         if (configId == 0) {
 
             lst = patentService
-                .getPatents(userId, templateId, "", 0, 0, "", "", "");
+                    .getPatents(userId, templateId, "", 0, 0, "", "", "");
 
             columns = patentService
-                .selectPropertyName(templateId, "", "");
+                    .selectPropertyName(templateId, "", "");
             DateFormat dateFormat = new SimpleDateFormat("yyyyMMddhhmm");
             fileName = dateFormat.format(new Date());
         } else {
             DisplayConfig config = patentService.getDisplayConfig(configId);
 
             lst = patentService
-                .getPatents(userId, config.getTemplateId(), config.getFilter(), 0, 0, "", "", "");
+                    .getPatents(userId, config.getTemplateId(), config.getFilter(), 0, 0, "", "", "");
 
             columns = patentService
-                .selectPropertyName(config.getTemplateId(), config.getOrderList(), config.getVisibleList());
+                    .selectPropertyName(config.getTemplateId(), config.getOrderList(), config.getVisibleList());
 
             fileName = config.getConfigname();
         }
@@ -630,6 +631,33 @@ public class PatentController {
         return "backstage/query_patent";
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/cpquery", produces = "application/json;charset=UTF-8")
+    public Object cpquery(@RequestParam(required = true) String applicationNumber,
+            @RequestParam(required = true) String type) {
+
+        Map<Object, Object> info = new HashMap<Object, Object>();
+        switch (type) {
+            case "application":
+                info.put("data",patentService.getCpqueryApplication(applicationNumber));
+                break;
+            case "review":
+                info.put("data",patentService.getCpqueryReview(applicationNumber));
+                break;
+            case "cost":
+                info.put("data",patentService.getCpqueryCost(applicationNumber));
+                break;
+            case "post":
+                info.put("data",patentService.getCpqueryPost(applicationNumber));
+                break;
+            case "announce":
+                info.put("data",patentService.getCpqueryAnnounce(applicationNumber));
+                break;
+        }
+
+        return info;
+    }
+
     @RequestMapping(value = "/patent")
     public String patent(@RequestParam(required = false) int id, Model model) {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
@@ -646,6 +674,12 @@ public class PatentController {
             patent = patentService.getPatent(id);
             List<PatentRecord> records = patentService.getPatentRecords(id);
             model.addAttribute("records", records);
+            model.addAttribute("id", id);
+
+            String applicationNumber = patentService.getPatentApplicationNumber(id);
+            if (applicationNumber == null || applicationNumber.length() > 0) {
+                model.addAttribute("applicationNumber", applicationNumber);
+            }
         }
         List<Template> templates = patentService.getTemplates(user.getId());
 
@@ -655,14 +689,14 @@ public class PatentController {
     }
 
     @RequestMapping(value = "/newpatent")
-    public String newpatent(@RequestParam(required = false) int id, Model model) {
+    public String newpatent(@RequestParam(required = false) int orderid, Model model) {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
 
-        Patent patent = patentService.getPatentByOrderID(id);
+        //Patent patent = patentService.getPatentByOrderID(id);
 
         List<Template> templates = patentService.getTemplates(user.getId());
 
-        model.addAttribute("patent", patent);
+        model.addAttribute("orderID", orderid);
         model.addAttribute("templates", templates);
         return "backstage/patent";
     }

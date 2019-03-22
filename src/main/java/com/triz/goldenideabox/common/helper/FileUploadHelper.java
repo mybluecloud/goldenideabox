@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.UUID;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -84,5 +85,29 @@ public class FileUploadHelper {
             }
         }
         return code;
+    }
+
+
+    public static void saveAsFileWriter(String path, String fielname,String content) {
+
+        File file = new File(path);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        FileWriter fwriter = null;
+        try {
+            fwriter = new FileWriter(path + File.separator + fielname);
+            fwriter.write(content);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                fwriter.flush();
+                fwriter.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 }

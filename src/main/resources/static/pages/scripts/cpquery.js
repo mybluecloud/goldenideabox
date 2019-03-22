@@ -1,4 +1,4 @@
-var table,record;
+var table, record;
 var count_dz = 0;
 var isRun = false;
 var reload_status = false;
@@ -106,10 +106,36 @@ var CpQuery = function () {
       }
 
       if (count_dz >= 2 && click_3 != null) {
-        var code = 'x' + ':' + x + ';' + 'y' + ':' + y + ';' + 'x1' + ':' + x1 + ';' + 'y1' + ':' + y1 + ';' + 'x2' + ':' + x2 + ';' + 'y2' + ':' + y2
-            + ';';
+        var code = 'x' + ':' + x + ';' + 'y' + ':' + y + ';' + 'x1' + ':' + x1 + ';' + 'y1' + ':' + y1 + ';' + 'x2' + ':' + x2 + ';' + 'y2'
+          + ':' + y2
+          + ';';
+        var checks = '';
 
-        executeTask($('#id').val(), code);
+        if ($('#review').is(':checked')) {
+          checks = checks + '1:'
+        } else {
+          checks = checks + '0:'
+        }
+
+        if ($('#cost').is(':checked')) {
+          checks = checks + '1:'
+        } else {
+          checks = checks + '0:'
+        }
+
+        if ($('#post').is(':checked')) {
+          checks = checks + '1:'
+        } else {
+          checks = checks + '0:'
+        }
+
+        if ($('#announce').is(':checked')) {
+          checks = checks + '1'
+        } else {
+          checks = checks + '0'
+        }
+
+        executeTask($('#id').val(), code, checks);
       } else {
         count_dz = count_dz + 1;
       }
@@ -194,16 +220,16 @@ var CpQuery = function () {
 
             var action;
             var action1 = "<button  id='task-" + data.id + "' onclick='runTask(" + data.id
-                + ",false)' class='btn btn-outline btn-circle btn-sm blue' ><i class='fa fa-toggle-right'></i>启动任务</button>";
+              + ",false)' class='btn btn-outline btn-circle btn-sm blue' ><i class='fa fa-toggle-right'></i>启动任务</button>";
 
             var action2 = "<a href='" + http_request + "/cpquery/cpqueryResult?id=" + data.id
-                + "' class='btn btn-outline btn-circle btn-sm blue'><i class='fa fa-envelope'></i>查看结果</a>";
+              + "' class='btn btn-outline btn-circle btn-sm blue'><i class='fa fa-envelope'></i>查看结果</a>";
 
             var action3 = "<a href='#' onclick='editTask(" + data.id
-                + ")' class='btn btn-outline btn-circle btn-sm green'><i class='fa fa-edit'></i>编辑任务</a>";
+              + ")' class='btn btn-outline btn-circle btn-sm green'><i class='fa fa-edit'></i>编辑任务</a>";
 
             var action4 = "<a href='#' onclick='delTask(" + data.id
-                + ")' class='btn btn-outline btn-circle btn-sm red'><i class='fa fa-remove'></i>删除任务</a>";
+              + ")' class='btn btn-outline btn-circle btn-sm red'><i class='fa fa-remove'></i>删除任务</a>";
 
             var action5 = "<a href='#' onclick='stopTask()' class='btn btn-outline btn-circle btn-sm red'><i class='fa fa-stop'></i>停止任务</a>";
 
@@ -231,22 +257,21 @@ var CpQuery = function () {
     });
 
     $('#cpquerylist')
-    .on( 'init.dt', function () {
-      var data = table.column( 0 ).data();
+    .on('init.dt', function () {
+      var data = table.column(0).data();
 
-      for (var i = 0; i < data.length;i++) {
-        $('#q_number').append('<option >'+data[i]+'</option>');
+      for (var i = 0; i < data.length; i++) {
+        $('#q_number').append('<option >' + data[i] + '</option>');
       }
 
       $('#q_number').selectpicker('refresh');
-    } );
+    });
   }
 
   function loadRecordList() {
 
     record = $('#recordlist').DataTable({
       "ajax": http_request + "/cpquery/cpqueryResult",
-
       columns: [
         {
           "data": "cpqueryId",
@@ -255,42 +280,29 @@ var CpQuery = function () {
         {
           "data": null,
           "title": "申请号",
-          "width": "250px",
+          "width": "150px",
           render: function (data, type, full, meta) {
 
-            var action = "<a href='" + http_request + "/patent/patent?id=" + data.patentId + "' target='_blank'>" + data.applicationNumber + "</a>";
+            var action = "<a href='" + http_request + "/patent/patent?id=" + data.patentId + "' target='_blank'>" + data.applicationNumber
+              + "</a>";
             return action;
           }
         },
+
         {
-          "data": "officialStatus",
-          "title": '官方状态'
-        },
-        {
-          "data": "createTime",
-          "title": "创建时间",
-          "width": "250px",
+          "data": "updateTime",
+          "title": "更新时间",
+          "width": "150px",
           render: function (data, type, full, meta) {
             var dt = new Date(data);
             return dt.format("yyyy-MM-dd hh:mm:ss");
 
           }
         },
+
         {
-          "data": "updateTime",
-          "title": "更新时间",
-          "width": "250px",
-          render: function (data, type, full, meta) {
-            if (data == null) {
-              return '';
-            }
-            var dt = new Date(data);
-            return dt.format("yyyy-MM-dd hh:mm:ss");
-          }
-        },
-        {
-          "data": "status",
-          "title": '状态',
+          "data": "applicationStatus",
+          "title": '申请信息查询状态',
           render: function (data, type, full, meta) {
             var str;
             switch (data) {
@@ -301,7 +313,7 @@ var CpQuery = function () {
                 str = '<span class="label label-sm label-success">查询成功</span>';
                 break;
               case 2:
-                str = '<span class="label label-sm label-warning">查询不到案件</span>';
+                str = '<span class="label label-sm label-warning">查询失败</span>';
                 break;
               case 3:
                 str = '<span class="label label-sm label-default">官方状态为空</span>';
@@ -311,71 +323,177 @@ var CpQuery = function () {
 
             return str;
           }
+        },
+        {
+          "data": "reviewStatus",
+          "title": '审查信息查询状态',
+          render: function (data, type, full, meta) {
+            var str;
+            switch (data) {
+              case 0:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+              case 1:
+                str = '<span class="label label-sm label-success">查询成功</span>';
+                break;
+              case 2:
+                str = '<span class="label label-sm label-warning">查询失败</span>';
+                break;
+            }
+
+            return str;
+          }
+        },
+        {
+          "data": "costStatus",
+          "title": '费用信息查询状态',
+          render: function (data, type, full, meta) {
+            var str;
+            switch (data) {
+              case 0:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+              case 1:
+                str = '<span class="label label-sm label-success">查询成功</span>';
+                break;
+              case 2:
+                str = '<span class="label label-sm label-warning">查询失败</span>';
+                break;
+            }
+
+            return str;
+          }
+        },
+        {
+          "data": "postStatus",
+          "title": '发文信息查询状态',
+          render: function (data, type, full, meta) {
+            var str;
+            switch (data) {
+              case 0:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+              case 1:
+                str = '<span class="label label-sm label-success">查询成功</span>';
+                break;
+              case 2:
+                str = '<span class="label label-sm label-warning">查询失败</span>';
+                break;
+            }
+
+            return str;
+          }
+        },
+        {
+          "data": "announceStatus",
+          "title": '公布公告查询状态',
+          render: function (data, type, full, meta) {
+            var str;
+            switch (data) {
+              case 0:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+              case 1:
+                str = '<span class="label label-sm label-success">查询成功</span>';
+                break;
+              case 2:
+                str = '<span class="label label-sm label-warning">查询失败</span>';
+                break;
+
+            }
+
+            return str;
+          }
         }
       ],
-      order: [[3, "desc"]],
+      order: [[2, "desc"]],
       language: {
         "url": http_request + "/global/plugins/datatables/Chinese.json"
+      },
+      initComplete: function () {
+        this.api().columns().every(function () {
+          var column = this;
+
+          var select = $('<select class="form-control input-sm" style="width: 100%;"><option value=""></option></select>')
+          .appendTo($(column.footer()).empty())
+          .on('change', function () {
+            if (column.index() == 2) {
+              column
+              .search($(this).val())
+              .draw();
+            } else {
+              var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+              );
+              column
+              .search(val ? '^' + val + '$' : '', true, false)
+              .draw();
+            }
+
+          });
+          if (column.index() == 2) {
+            var data = [];
+            column.data().each(function (d, j) {
+              var dt = new Date(d);
+              var value = dt.format("yyyy-MM-dd");
+
+              if (!data.in_array(value)) {
+                data.push(value);
+                select.append('<option value="' + value + '">' + value + '</option>');
+              }
+            });
+
+          } else {
+            column.data().unique().sort().each(function (d, j) {
+              var value = '';
+              switch (column.index()) {
+                case 0:
+                  value = d;
+                  break;
+                case 1:
+                  value = d.applicationNumber;
+                  break;
+                case 2:
+                  var dt = new Date(d);
+                  value = dt.format("yyyy-MM-dd");
+                  break;
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                  switch (d) {
+                    case 0:
+                      value = '未执行';
+                      break;
+                    case 1:
+                      value = '查询成功';
+                      break;
+                    case 2:
+                      value = '查询失败';
+                      break;
+                    case 3:
+                      value = '官方状态为空';
+                      break;
+                  }
+                  break;
+              }
+              select.append('<option value="' + value + '">' + value + '</option>');
+            });
+          }
+
+        });
       }
     });
 
-    $('#recordlist')
-    .on( 'init.dt', function () {
-      var data = record.column( 3 ).data();
-      var options = [];
-      for (var i = 0; i < data.length;i++) {
-        var dt = new Date(data[i]).format("yyyy-MM-dd");
-
-        if (!options.in_array(dt)) {
-          options.push(dt);
-        }
-      }
-
-      for (var j = 0; j < options.length;j++) {
-
-        $('#q_date').append('<option >'+options[j]+'</option>');
-      }
-
-      $('#q_date').selectpicker('refresh');
-
-
-
-    } );
   }
-  var handleBootstrapSelect = function() {
-
-
-
-    $('#q_status').append('<option value="未执行">未执行</option>');
-    $('#q_status').append('<option value="查询成功">查询成功</option>');
-    $('#q_status').append('<option value="查询不到案件">查询不到案件</option>');
-    $('#q_status').append('<option value="官方状态为空">官方状态为空</option>');
-
-
-    $('.bs-select').selectpicker({
-      iconBase: 'fa',
-      tickIcon: 'fa-check'
-    });
-
-    $('.bs-select').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
-      record
-      .column( 0 )
-      .search($('#q_number').val() )
-      .column( 3 )
-      .search($('#q_date').val() )
-      .column( 5 )
-      .search($('#q_status').val() )
-      .draw();
-    });
-  }
-
 
   return {
 
     init: function () {
       initButtonEvent();
       loadCpqueryList();
-      handleBootstrapSelect();
+
       loadRecordList();
 
     }
@@ -493,7 +611,7 @@ function saveTask() {
         "applicationNumberField": $('#anFiled').val(),
         "statusField": $('#statusFiled').val(),
         "account": base64encode($('#account').val()),
-        "password": encodeURIComponent(base64encode($('#password').val()))
+        "password": base64encode($('#password').val())
       },
       success: function (data) {
         $('#task_dialog').modal('toggle');
@@ -560,13 +678,16 @@ function runTask(id, reload) {
 
 }
 
-function executeTask(id, code) {
+function executeTask(id, code, checks) {
+
 
   $.ajax({
     url: http_request + "/cpquery/executeCpquery", //ajax提交
     data: {
       'id': id,
-      'code': code
+      'code': code,
+      'checks': checks,
+      'isWhole': $("input[name='caseRadio']:checked").val()
     },
     success: function (data) {
       if (data.retcode == '000000') {

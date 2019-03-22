@@ -8,6 +8,7 @@
     -->
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="time" jdbcType="DATE" property="time" />
+    <result column="template_id" jdbcType="INTEGER" property="templateId" />
     <result column="state" jdbcType="INTEGER" property="state" />
   </resultMap>
   <sql id="Base_Column_List">

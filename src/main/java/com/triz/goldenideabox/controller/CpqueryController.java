@@ -127,7 +127,6 @@ public class CpqueryController {
             return info;
         }
 
-        //info.put("JSESSIONID",jsessionID);
         Date date = new Date();
         String imagePath = cpqueryService.getJcaptchaImage(date);
         info.put("imagePath",imagePath);
@@ -140,7 +139,8 @@ public class CpqueryController {
     @ResponseBody
     @RequestMapping(value = {"/executeCpquery"}, produces = "application/json;charset=UTF-8")
     public Object executeCpquery(@RequestParam(required = true) int id,
-        @RequestParam(required = true) String code) {
+        @RequestParam(required = true) String code,@RequestParam(required = true) String checks,
+            @RequestParam(required = true) boolean isWhole) {
 
         Map<Object, Object> info = new HashMap<Object, Object>();
 
@@ -151,7 +151,7 @@ public class CpqueryController {
 
         info.put("status",status);
         if (status == 0) {
-            String retcode = cpqueryService.beginQuery(id);
+            String retcode = cpqueryService.beginQuery(id,checks,isWhole);
             info.put("retcode",retcode);
         }
 

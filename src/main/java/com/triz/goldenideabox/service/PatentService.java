@@ -1,5 +1,10 @@
 package com.triz.goldenideabox.service;
 
+import com.triz.goldenideabox.model.CpqueryAnnounceInfo;
+import com.triz.goldenideabox.model.CpqueryApplicationInfo;
+import com.triz.goldenideabox.model.CpqueryCostInfo;
+import com.triz.goldenideabox.model.CpqueryPostInfo;
+import com.triz.goldenideabox.model.CpqueryReviewInfo;
 import com.triz.goldenideabox.model.DashBoard;
 import com.triz.goldenideabox.model.DisplayConfig;
 import com.triz.goldenideabox.model.Document;
@@ -74,4 +79,15 @@ public interface PatentService {
     List<PatentRecord> getPatentRecords(int id);
 
 
+    String getPatentApplicationNumber(int id);
+
+    CpqueryApplicationInfo getCpqueryApplication(String applicationNumber);
+
+    List<CpqueryReviewInfo> getCpqueryReview(String applicationNumber);
+
+    CpqueryCostInfo getCpqueryCost(String applicationNumber);
+
+    CpqueryPostInfo getCpqueryPost(String applicationNumber);
+
+    CpqueryAnnounceInfo getCpqueryAnnounce(String applicationNumber);
 }

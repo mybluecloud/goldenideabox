@@ -71,7 +71,7 @@
 
                       <a id="template_new" type="button"
                          class="btn  blue-madison btn-outline btn-circle btn-sm"
-                          href="${request.contextPath}/patent/patent?id=0">
+                          href="${request.contextPath}/patent/newpatent?orderid=0">
                         <i class="fa fa-plus"></i> 新建案件 </a>
 
                     </div>

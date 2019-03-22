@@ -20,7 +20,7 @@ public interface CpqueryService {
 
     int getValidationStatus(String code);
 
-    String beginQuery(int id);
+    String beginQuery(int id, String checks,boolean isWhole);
 
 
     Cpquery getCpqueryInfoById(int id);

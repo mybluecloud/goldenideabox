@@ -80,4 +80,9 @@
       left join t_template_property ttp on tp.template_id = ttp.template_id and ttp.sort_id = #{sortId,jdbcType=INTEGER}
     where tp.id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getPropertyValue" parameterType="java.lang.Integer" resultType="java.lang.String">
+    select ttp.value from t_patent tp
+      left join t_template_property ttp on tp.template_id = ttp.template_id and ttp.sort_id = #{sortId,jdbcType=INTEGER}
+    where tp.id = #{id,jdbcType=INTEGER}
+  </select>
 </mapper>

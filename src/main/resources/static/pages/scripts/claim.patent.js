@@ -24,7 +24,7 @@ var ClaimPatent = function () {
             "title": "操作",
             render: function (data, type, full, meta) {
 
-              var action1 = "<a  href='" + http_request + "/patent/newpatent?id=" + data.id
+              var action1 = "<a  href='" + http_request + "/patent/newpatent?orderid=" + data.id
                   + "' class='btn btn-outline btn-circle btn-sm blue'><i class='fa fa-edit'></i>新建案件</a>";
               // var action2 = "<button  onclick='del(" + data.id
               //     + ")' class='btn btn-outline btn-circle btn-sm red' ><i class='fa fa-edit'></i>删除</button>";

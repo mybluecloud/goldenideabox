@@ -21,4 +21,6 @@ public interface PatentPropertyMapper {
     Map<Integer,String> getProperty(Integer id);
 
     String getPropertyName(@Param("id")Integer id,@Param("sortId")Integer sortId);
+
+    String getPropertyValue(@Param("id")Integer id,@Param("sortId") Integer sortId);
 }
