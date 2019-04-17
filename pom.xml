@@ -133,6 +133,8 @@
       <artifactId>httpclient</artifactId>
       <version>4.5.6</version>
     </dependency>
+
+
   </dependencies>
 
   <build>
@@ -159,6 +161,31 @@
         </configuration>
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <excludes>
+          <exclude>**/*.otf</exclude>
+          <exclude>**/*.eot</exclude>
+          <exclude>**/*.woff</exclude>
+          <exclude>**/*.woff2</exclude>
+          <exclude>**/*.ttf</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>**/*.otf</include>
+          <include>**/*.eot</include>
+          <include>**/*.woff</include>
+          <include>**/*.woff2</include>
+          <include>**/*.ttf</include>
+        </includes>
+      </resource>
+    </resources>
+
   </build>
 
   <repositories>

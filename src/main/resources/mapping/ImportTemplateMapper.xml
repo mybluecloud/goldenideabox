@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.triz.goldenideabox.dao.ImportTemplateMapper">
+  <resultMap id="BaseResultMap" type="com.alibaba.fastjson.JSONObject" >
+
+    <result column="sort_id" jdbcType="INTEGER" property="sortId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+  </resultMap>
+
+  <select id="getImportTemplate" parameterType="java.lang.Integer"  resultMap="BaseResultMap">
+    select sort_id,name from t_import_template
+    where template_id = #{id,jdbcType=INTEGER}
+  </select>
+  <insert id="insertImportTemplate" >
+    insert into t_import_template (template_id, sort_id,name
+    )
+    values
+    <foreach collection="configs.keys" item="key" open="(" close=")" separator="), (">
+      #{templateID,jdbcType=INTEGER},#{configs[${key}],jdbcType=INTEGER},#{key,jdbcType=VARCHAR}
+    </foreach>
+  </insert>
+  <delete id="deleteImportTemplate" parameterType="java.lang.Integer">
+    delete from t_import_template
+    where template_id = #{id,jdbcType=INTEGER}
+  </delete>
+</mapper>

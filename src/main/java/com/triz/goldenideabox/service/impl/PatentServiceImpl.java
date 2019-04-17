@@ -7,6 +7,7 @@ import com.triz.goldenideabox.dao.CpqueryCostInfoMapper;
 import com.triz.goldenideabox.dao.CpqueryPostInfoMapper;
 import com.triz.goldenideabox.dao.CpqueryResultMapper;
 import com.triz.goldenideabox.dao.CpqueryReviewInfoMapper;
+import com.triz.goldenideabox.dao.ImportTemplateMapper;
 import com.triz.goldenideabox.dao.PatentRecordMapper;
 import com.triz.goldenideabox.model.CpqueryAnnounceInfo;
 import com.triz.goldenideabox.model.CpqueryApplicationInfo;
@@ -56,6 +57,9 @@ public class PatentServiceImpl implements PatentService {
 
     @Autowired
     private TemplatePropertyMapper templatePropertyMapper;
+
+    @Autowired
+    private ImportTemplateMapper importTemplateMapper;
 
     @Autowired
     private DisplayConfigMapper displayConfigMapper;
@@ -135,6 +139,11 @@ public class PatentServiceImpl implements PatentService {
     @Override
     public List<TemplateProperty> getTemplateProperty(int id) {
         return templatePropertyMapper.getTemplateProperty(id);
+    }
+
+    @Override
+    public List<JSONObject> getImportTemplate(int id) {
+        return importTemplateMapper.getImportTemplate(id);
     }
 
     @Override
@@ -236,8 +245,13 @@ public class PatentServiceImpl implements PatentService {
     }
 
     @Override
-    public Map<Integer,String> getPatentProperty(int id) {
+    public Map<Integer,JSONObject> getPatentProperty(int id) {
         return patentPropertyMapper.getProperty(id);
+    }
+
+    @Override
+    public Map<Integer,List<JSONObject>> getPatentProperty(int templateId,int sortId,String value,List<Integer> ids) {
+        return patentPropertyMapper.getPropertyByValue(templateId,sortId,value,ids);
     }
 
     @Override
@@ -286,5 +300,15 @@ public class PatentServiceImpl implements PatentService {
     @Override
     public CpqueryAnnounceInfo getCpqueryAnnounce(String applicationNumber) {
         return cpqueryAnnounceInfoMapper.selectByPrimaryKey(applicationNumber);
+    }
+
+    @Override
+    public int saveImportConfig(int templateID, Map<String, Integer> configs) {
+        return importTemplateMapper.insertImportTemplate(templateID,configs);
+    }
+
+    @Override
+    public int deleteImportConfig(int templateID) {
+        return importTemplateMapper.deleteImportTemplate(templateID);
     }
 }

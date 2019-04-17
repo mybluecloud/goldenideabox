@@ -7,8 +7,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>萃智知识产权管理平台</title>
   <!-- BEGIN GLOBAL MANDATORY STYLES -->
-  <link href="${request.contextPath}/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-  <link href="${request.contextPath}/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css" />
+  <link href="${request.contextPath}/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+  <link href="${request.contextPath}/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
   <link href="${request.contextPath}/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet"
         type="text/css"/>
   <!-- END GLOBAL MANDATORY STYLES -->
@@ -18,10 +18,9 @@
         rel="stylesheet" type="text/css"/>
   <link href="${request.contextPath}/global/plugins/datatables/css/fixedColumns.bootstrap.min.css"
         rel="stylesheet" type="text/css"/>
-  <link href="${request.contextPath}/global/plugins/datatables/css/fixedHeader.bootstrap.min.css"
+  <link href="${request.contextPath}/global/plugins/datatables/css/scroller.bootstrap.min.css"
         rel="stylesheet" type="text/css"/>
-  <link href="${request.contextPath}/global/plugins/datatables/css/select.dataTables.min.css" rel="stylesheet" type="text/css"/>
-  <link href="${request.contextPath}/global/plugins/datatables/css/responsive.dataTables.min.css" rel="stylesheet" type="text/css"/>
+
   <link href="${request.contextPath}/global/plugins/bootstrap-modal/css/bootstrap-modal-bs3patch.css"
         rel="stylesheet" type="text/css"/>
   <link href="${request.contextPath}/global/plugins/bootstrap-modal/css/bootstrap-modal.css"
@@ -46,7 +45,12 @@
   <link href="${request.contextPath}/layouts/layout/backstage/css/themes/default.css" rel="stylesheet"
         type="text/css" id="style_color"/>
   <!-- END THEME LAYOUT STYLES -->
-
+<style>
+  div.dataTables_wrapper {
+    width: 100%;
+    margin: 0 auto;
+  }
+</style>
 </head>
 <!-- END HEAD -->
 
@@ -80,9 +84,11 @@
             <div class="container-fluid">
               <div class="portlet box blue-hoki">
                 <div class="portlet-title ">
+                  <div class="actions pull-left">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;"> </a>
+                  </div>
                   <div class="caption ">
-                    <i class="icon-settings "></i>
-                    <span class="caption-subject bold uppercase">案件列表</span>
+                   案件列表
                   </div>
                   <ul id="tabs" class="nav nav-tabs">
                     <li class="active">
@@ -103,8 +109,9 @@
 
 
                   </ul>
+
                 </div>
-                <div class="portlet-body" >
+                <div class="portlet-body">
                   <@shiro.hasPermission name="/patent/appoint">
                   <input type="hidden" id="appoint" value="0"/>
                   </@shiro.hasPermission>
@@ -132,8 +139,8 @@
                           <button id="bookmark" type="button" class="btn  blue-madison btn-outline btn-circle btn-sm"
                                   data-toggle="popover"><i class="fa fa-bookmark"></i> 添加标签
                           </button>
-                          <button id="rename" type="button" class="btn  blue-madison btn-outline btn-circle btn-sm"
-                                  style="display: none" data-toggle="popover"><i class="fa fa-edit"></i> 重命名
+                          <button id="saveas" type="button" class="btn  blue-madison btn-outline btn-circle btn-sm"
+                                  style="display: none" data-toggle="popover"><i class="fa fa-edit"></i> 另存为
                           </button>
                           <button id="save" type="button" class="btn  blue-madison btn-outline btn-circle btn-sm"
                                   style="display: none"><i class="fa fa-save"></i> 保存
@@ -181,10 +188,13 @@
                       </div>
                     </div>
                   </div>
+
                   <table
-                      class="table table-striped table-bordered table-hover table-checkable order-column nowrap"
-                      style="width:100%" id="patentlist" >
+                      class="table table-striped table-bordered table-hover order-column text-nowrap " style="width:100%"
+                      id="patentlist">
                   </table>
+
+
                   <!-- 表格配置对话框 begin-->
                   <div id="config_dialog" class="portlet box blue-hoki modal fade"
                        data-backdrop="static" data-keyboard="false">
@@ -197,6 +207,7 @@
                     <div class="portlet-body">
                       <div class="note note-success">
                         <p>拖动属性可以改变排列顺序</p>
+                        <p>勾选查询字段可以设置需要显示高级查询的属性</p>
                       </div>
 
                       <div class="scroller" data-always-visible="1"
@@ -205,7 +216,8 @@
                           <thead>
                           <tr>
                             <th>属性名</th>
-                            <th><input  type='checkbox' class='group-display' onchange="displaySwitch()" > 显示</th>
+                            <th><input type='checkbox' class='group-display' onchange="displaySwitch()"> 显示</th>
+                            <th><input type='checkbox' class='group-search' onchange="searchSwitch()"> 查询</th>
                           </tr>
                           </thead>
                           <tbody id="propertys">
@@ -275,10 +287,12 @@
 <script src="${request.contextPath}/global/plugins/typeahead/typeahead.bundle.min.js" type="text/javascript"></script>
 <script src="${request.contextPath}/global/plugins/datatables/js/jquery.dataTables.js" type="text/javascript" language="javascript"></script>
 <script src="${request.contextPath}/global/plugins/datatables/js/dataTables.bootstrap.min.js" type="text/javascript" language="javascript"></script>
-<script src="${request.contextPath}/global/plugins/datatables/js/dataTables.fixedColumns.min.js" type="text/javascript" language="javascript"></script>
-<script src="${request.contextPath}/global/plugins/datatables/js/dataTables.fixedHeader.min.js" type="text/javascript" language="javascript"></script>
-<script src="${request.contextPath}/global/plugins/datatables/js/dataTables.select.min.js" type="text/javascript" language="javascript"></script>
-<script src="${request.contextPath}/global/plugins/datatables/js/dataTables.responsive.min.js" type="text/javascript" language="javascript"></script>
+<script src="${request.contextPath}/global/plugins/datatables/js/dataTables.fixedColumns.min.js" type="text/javascript"
+        language="javascript"></script>
+<script src="${request.contextPath}/global/plugins/datatables/js/scroller.bootstrap.min.js" type="text/javascript" language="javascript"></script>
+<script src="${request.contextPath}/global/plugins/datatables/js/dataTables.scroller.min.js" type="text/javascript" language="javascript"></script>
+
+
 <script src="${request.contextPath}/global/plugins/bootstrap-notify/bootstrap-notify.min.js" type="text/javascript"></script>
 <script src="${request.contextPath}/global/plugins/bootstrap-modal/js/bootstrap-modalmanager.js" type="text/javascript"></script>
 <script src="${request.contextPath}/global/plugins/bootstrap-modal/js/bootstrap-modal.js" type="text/javascript"></script>

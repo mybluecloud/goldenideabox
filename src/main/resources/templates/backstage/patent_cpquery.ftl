@@ -9,13 +9,13 @@
           <li data-jstree='{ "opened" : true }'> 申请文件
             <ul id="01"></ul>
           </li>
-          <li> 中间文件
+          <li data-jstree='{ "opened" : true }'> 中间文件
             <ul id="02"></ul>
           </li>
-          <li> 通知书
+          <li data-jstree='{ "opened" : true }'> 通知书
             <ul id="03"></ul>
           </li>
-          <li> 复审文件
+          <li data-jstree='{ "opened" : true }'> 复审文件
             <ul id="04"></ul>
           </li>
         </ul>

@@ -307,16 +307,16 @@ var CpQuery = function () {
             var str;
             switch (data) {
               case 0:
-                str = '<span class="label label-sm label-info">未执行</span>';
+                str = '<span class="label label-sm label-danger">查询失败</span>';
                 break;
               case 1:
                 str = '<span class="label label-sm label-success">查询成功</span>';
                 break;
               case 2:
-                str = '<span class="label label-sm label-warning">查询失败</span>';
+                str = '<span class="label label-sm label-primary">数据变更</span>';
                 break;
               case 3:
-                str = '<span class="label label-sm label-default">官方状态为空</span>';
+                str = '<span class="label label-sm label-info">未执行</span>';
                 break;
 
             }
@@ -331,14 +331,18 @@ var CpQuery = function () {
             var str;
             switch (data) {
               case 0:
-                str = '<span class="label label-sm label-info">未执行</span>';
+                str = '<span class="label label-sm label-danger">查询失败</span>';
                 break;
               case 1:
                 str = '<span class="label label-sm label-success">查询成功</span>';
                 break;
               case 2:
-                str = '<span class="label label-sm label-warning">查询失败</span>';
+                str = '<span class="label label-sm label-primary">数据变更</span>';
                 break;
+              case 3:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+
             }
 
             return str;
@@ -351,14 +355,18 @@ var CpQuery = function () {
             var str;
             switch (data) {
               case 0:
-                str = '<span class="label label-sm label-info">未执行</span>';
+                str = '<span class="label label-sm label-danger">查询失败</span>';
                 break;
               case 1:
                 str = '<span class="label label-sm label-success">查询成功</span>';
                 break;
               case 2:
-                str = '<span class="label label-sm label-warning">查询失败</span>';
+                str = '<span class="label label-sm label-primary">数据变更</span>';
                 break;
+              case 3:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+
             }
 
             return str;
@@ -371,14 +379,18 @@ var CpQuery = function () {
             var str;
             switch (data) {
               case 0:
-                str = '<span class="label label-sm label-info">未执行</span>';
+                str = '<span class="label label-sm label-danger">查询失败</span>';
                 break;
               case 1:
                 str = '<span class="label label-sm label-success">查询成功</span>';
                 break;
               case 2:
-                str = '<span class="label label-sm label-warning">查询失败</span>';
+                str = '<span class="label label-sm label-primary">数据变更</span>';
                 break;
+              case 3:
+                str = '<span class="label label-sm label-info">未执行</span>';
+                break;
+
             }
 
             return str;
@@ -391,13 +403,16 @@ var CpQuery = function () {
             var str;
             switch (data) {
               case 0:
-                str = '<span class="label label-sm label-info">未执行</span>';
+                str = '<span class="label label-sm label-danger">查询失败</span>';
                 break;
               case 1:
                 str = '<span class="label label-sm label-success">查询成功</span>';
                 break;
               case 2:
-                str = '<span class="label label-sm label-warning">查询失败</span>';
+                str = '<span class="label label-sm label-primary">数据变更</span>';
+                break;
+              case 3:
+                str = '<span class="label label-sm label-info">未执行</span>';
                 break;
 
             }
@@ -464,16 +479,16 @@ var CpQuery = function () {
                 case 7:
                   switch (d) {
                     case 0:
-                      value = '未执行';
+                      value = '查询失败';
                       break;
                     case 1:
                       value = '查询成功';
                       break;
                     case 2:
-                      value = '查询失败';
+                      value = '数据变更';
                       break;
                     case 3:
-                      value = '官方状态为空';
+                      value = '未执行';
                       break;
                   }
                   break;

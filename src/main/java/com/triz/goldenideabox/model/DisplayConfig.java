@@ -23,6 +23,8 @@ public class DisplayConfig implements Serializable {
 
     private Integer pageLength;
 
+    private String searchList;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -103,5 +105,13 @@ public class DisplayConfig implements Serializable {
 
     public void setPageLength(Integer pageLength) {
         this.pageLength = pageLength;
+    }
+
+    public String getSearchList() {
+        return searchList;
+    }
+
+    public void setSearchList(String searchList) {
+        this.searchList = searchList;
     }
 }

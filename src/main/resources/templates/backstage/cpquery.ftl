@@ -378,6 +378,7 @@
 <!-- END PAGE LEVEL SCRIPTS -->
 <!-- BEGIN THEME LAYOUT SCRIPTS -->
 <script src="${request.contextPath}/layouts/layout/backstage/scripts/layout.js" type="text/javascript"></script>
+<script src="${request.contextPath}/layouts/global/scripts/message.js" type="text/javascript"></script>
 <!-- END THEME LAYOUT SCRIPTS -->
 <script>
   var http_request = "${request.contextPath}";

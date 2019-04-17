@@ -34,6 +34,7 @@ function insertHtml(attr_id) {
       + '      <option value="4">数值</option>'
       + '      <option value="5">日期</option>'
       + '      <option value="6">计算</option>'
+      + '      <option value="7">系统配置</option>'
       + '    </select>'
       + '  </div>'
       + '  <div class="mt-repeater-input" id="rule_' + attr_id + '" style="display: none">'

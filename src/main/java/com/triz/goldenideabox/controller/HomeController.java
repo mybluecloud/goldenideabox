@@ -70,7 +70,7 @@ public class HomeController {
             return "backstage/login";
         }
 
-        return "redirect:backstage/index";
+        return "redirect:index";
     }
 
 

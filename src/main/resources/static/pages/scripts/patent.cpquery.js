@@ -5,10 +5,9 @@ var PatentCpquery = function () {
 
   function initImagePlugin(count) {
 
-
     turnobj = $('.flipbook').turn({
-      width:1024,
-      height:768,
+      width: 1024,
+      height: 768,
       autoCenter: false
     });
 
@@ -20,28 +19,28 @@ var PatentCpquery = function () {
     //
     // initToolsEvent();
   }
-  
+
   function initToolsEvent() {
     // Zoom Auto
-    $('.fb7-zoom-auto').on('click', function() {
+    $('.fb7-zoom-auto').on('click', function () {
       zoom = 1;
-      $(".flipbook").turn("zoom",zoom);
+      $(".flipbook").turn("zoom", zoom);
     });
 
     // Zoom In
-    $('.fb7-zoom-in').on('click', function() {
+    $('.fb7-zoom-in').on('click', function () {
 
-      zoom = zoom *2;
-      $(".flipbook").turn("zoom",zoom);
+      zoom = zoom * 2;
+      $(".flipbook").turn("zoom", zoom);
 
     });
 
     // Zoom Out
-    $('.fb7-zoom-out').on('click', function() {
+    $('.fb7-zoom-out').on('click', function () {
 
-      zoom = zoom /2;
+      zoom = zoom / 2;
 
-      $(".flipbook").turn("zoom",zoom);
+      $(".flipbook").turn("zoom", zoom);
 
     });
   }
@@ -53,10 +52,9 @@ var PatentCpquery = function () {
     }
   }
 
+  function loadImageData(num, imgUrl, desc) {
+    console.info(num, imgUrl, desc);
 
-  function loadImageData(num,imgUrl,desc) {
-    console.info(num,imgUrl,desc);
-    
     var page = '<div style="background-image:url(' + imgUrl + ')"></div>';
     if (imgUrl == '') {
       page = '<div>' + desc + '</div>';
@@ -160,10 +158,13 @@ var PatentCpquery = function () {
 
       ReviewData[item.id] = item;
 
-      if (item.fileUrl == null || item.fileUrl.length < 3) {
+      if (item.fileUrl == null) {
+        code = '<li data-jstree=\'{ "type":"file","disabled":true,"icon" : "fa fa-warning icon-state-danger" }\' id="' + item.id + '"> '
+          + item.fileName + ' </li>';
+      } else if (item.fileUrl.length == 2) {
         code = '<li data-jstree=\'{"type":"file","disabled":true}\' id="' + item.id + '"> ' + item.fileName + ' </li>';
       } else {
-        code = '<li data-jstree=\'{"type":"file"}\' id="' + item.id + '"> ' + item.fileName + ' </li>';
+        code = '<li data-jstree=\'{"type":"file"}\' id="' + item.id + '"> ' + item.fileName + '</li>';
       }
 
       switch (item.type.substr(0, 2)) {
@@ -210,19 +211,18 @@ var PatentCpquery = function () {
       clearImage();
       var filelst = JSON.parse(ReviewData[id].fileUrl);
 
-
       var count = 0;
-      loadImageData(0,'',ReviewData[id].fileName);
+      loadImageData(0, '', ReviewData[id].fileName);
       $.each(filelst, function (f) {
         for (var num in filelst[f]) {
           var url = http_request + '/document/' + ReviewData[id].applicationNumber + '/' + filelst[f][num];
-          loadImageData(parseInt(num)+1,url,'');
+          loadImageData(parseInt(num) + 1, url, '');
           count++;
         }
 
       });
-      if (count%2 == 1) {
-        loadImageData(count+1,'','');
+      if (count % 2 == 1) {
+        loadImageData(count + 1, '', '');
       }
 
       initImagePlugin(count);
@@ -361,7 +361,6 @@ var PatentCpquery = function () {
               handleApplicationData(data.data);
               break;
             case 'review':
-
 
               handleReviewData(data.data);
 

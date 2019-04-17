@@ -48,6 +48,20 @@ function _pdfMake () {
 	return pdfmake || window.pdfMake;
 }
 
+DataTable.Buttons.pdfMake = function (_) {
+	if ( ! _ ) {
+		return _pdfMake();
+	}
+	pdfmake = m_ake;
+}
+
+DataTable.Buttons.jszip = function (_) {
+	if ( ! _ ) {
+		return _jsZip();
+	}
+	jszip = _;
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * FileSaver.js dependency
@@ -422,6 +436,9 @@ function _addToZip( zip, obj ) {
 
 				// Return namespace attributes to being as such
 				str = str.replace( /_dt_b_namespace_token_/g, ':' );
+
+				// Remove testing name space that IE puts into the space preserve attr
+				str = str.replace( /xmlns:NS[\d]+="" NS[\d]+:/g, '' );
 			}
 
 			// Safari, IE and Edge will put empty name space attributes onto
@@ -505,11 +522,11 @@ function _excelColWidth( data, col ) {
 
 		// Max width rather than having potentially massive column widths
 		if ( max > 40 ) {
-			return 52; // 40 * 1.3
+			return 54; // 40 * 1.35
 		}
 	}
 
-	max *= 1.3;
+	max *= 1.35;
 
 	// And a min width
 	return max > 6 ? max : 6;
@@ -550,8 +567,9 @@ var excelStrings = {
 				'<workbookView xWindow="0" yWindow="0" windowWidth="25600" windowHeight="19020" tabRatio="500"/>'+
 			'</bookViews>'+
 			'<sheets>'+
-				'<sheet name="" sheetId="1" r:id="rId1"/>'+
+				'<sheet name="Sheet1" sheetId="1" r:id="rId1"/>'+
 			'</sheets>'+
+			'<definedNames/>'+
 		'</workbook>',
 
 	"xl/worksheets/sheet1.xml":
@@ -813,7 +831,7 @@ DataTable.ext.buttons.copyHtml5 = {
 		}
 
 		if ( config.customize ) {
-			output = config.customize( output, config );
+			output = config.customize( output, config, dt );
 		}
 
 		var textarea = $('<textarea readonly/>')
@@ -925,7 +943,7 @@ DataTable.ext.buttons.csvHtml5 = {
 		var charset = config.charset;
 
 		if ( config.customize ) {
-			output = config.customize( output, config );
+			output = config.customize( output, config, dt );
 		}
 
 		if ( charset !== false ) {
@@ -992,6 +1010,7 @@ DataTable.ext.buttons.excelHtml5 = {
 
 		var that = this;
 		var rowPos = 0;
+		var dataStartRow, dataEndRow;
 		var getXml = function ( type ) {
 			var str = excelStrings[ type ];
 
@@ -1041,6 +1060,7 @@ DataTable.ext.buttons.excelHtml5 = {
 					}
 				}
 
+				var originalContent = row[i];
 				row[i] = $.trim( row[i] );
 
 				// Special number formatting options
@@ -1091,9 +1111,9 @@ DataTable.ext.buttons.excelHtml5 = {
 					}
 					else {
 						// String output - replace non standard characters for text output
-						var text = ! row[i].replace ?
-							row[i] :
-							row[i].replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '');
+						var text = ! originalContent.replace ?
+							originalContent :
+							originalContent.replace(/[\x00-\x09\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '');
 
 						cell = _createNode( rels, 'c', {
 							attr: {
@@ -1104,7 +1124,10 @@ DataTable.ext.buttons.excelHtml5 = {
 								row: _createNode( rels, 'is', {
 									children: {
 										row: _createNode( rels, 't', {
-											text: text
+											text: text,
+											attr: {
+												'xml:space': 'preserve'
+											}
 										} )
 									}
 								} )
@@ -1119,8 +1142,6 @@ DataTable.ext.buttons.excelHtml5 = {
 			relsGet.appendChild(rowNode);
 			rowPos++;
 		};
-
-		$( 'sheets sheet', xlsx.xl['workbook.xml'] ).attr( 'name', _sheetname( config ) );
 
 		if ( config.customizeData ) {
 			config.customizeData( data );
@@ -1150,15 +1171,20 @@ DataTable.ext.buttons.excelHtml5 = {
 			mergeCells( rowPos, data.header.length-1 );
 		}
 
+
 		// Table itself
 		if ( config.header ) {
 			addRow( data.header, rowPos );
 			$('row:last c', rels).attr( 's', '2' ); // bold
 		}
+	
+		dataStartRow = rowPos;
 
 		for ( var n=0, ie=data.body.length ; n<ie ; n++ ) {
 			addRow( data.body[n], rowPos );
 		}
+	
+		dataEndRow = rowPos;
 
 		if ( config.footer && data.footer ) {
 			addRow( data.footer, rowPos);
@@ -1186,9 +1212,32 @@ DataTable.ext.buttons.excelHtml5 = {
 			} ) );
 		}
 
+		// Workbook modifications
+		var workbook = xlsx.xl['workbook.xml'];
+
+		$( 'sheets sheet', workbook ).attr( 'name', _sheetname( config ) );
+
+		// Auto filter for columns
+		if ( config.autoFilter ) {
+			$('mergeCells', rels).before( _createNode( rels, 'autoFilter', {
+				attr: {
+					ref: 'A'+dataStartRow+':'+createCellPos(data.header.length-1)+dataEndRow
+				}
+			} ) );
+
+			$('definedNames', workbook).append( _createNode( workbook, 'definedName', {
+				attr: {
+					name: '_xlnm._FilterDatabase',
+					localSheetId: '0',
+					hidden: 1
+				},
+				text: _sheetname(config)+'!$A$'+dataStartRow+':'+createCellPos(data.header.length-1)+dataEndRow
+			} ) );
+		}
+
 		// Let the developer customise the document if they want to
 		if ( config.customize ) {
-			config.customize( xlsx );
+			config.customize( xlsx, config, dt );
 		}
 
 		// Excel doesn't like an empty mergeCells tag
@@ -1240,7 +1289,11 @@ DataTable.ext.buttons.excelHtml5 = {
 
 	messageBottom: '*',
 
-	createEmptyCells: false
+	createEmptyCells: false,
+
+	autoFilter: false,
+
+	sheetName: ''
 };
 
 //
@@ -1276,6 +1329,9 @@ DataTable.ext.buttons.pdfHtml5 = {
 
 		for ( var i=0, ien=data.body.length ; i<ien ; i++ ) {
 			rows.push( $.map( data.body[i], function ( d ) {
+				if ( d === null || d === undefined ) {
+					d = '';
+				}
 				return {
 					text: typeof d === 'string' ? d : d+'',
 					style: i % 2 ? 'tableBodyEven' : 'tableBodyOdd'
@@ -1358,7 +1414,7 @@ DataTable.ext.buttons.pdfHtml5 = {
 		}
 
 		if ( config.customize ) {
-			config.customize( doc, config );
+			config.customize( doc, config, dt );
 		}
 
 		var pdf = _pdfMake().createPdf( doc );

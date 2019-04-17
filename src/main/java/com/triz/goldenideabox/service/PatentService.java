@@ -1,5 +1,6 @@
 package com.triz.goldenideabox.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.triz.goldenideabox.model.CpqueryAnnounceInfo;
 import com.triz.goldenideabox.model.CpqueryApplicationInfo;
 import com.triz.goldenideabox.model.CpqueryCostInfo;
@@ -33,6 +34,8 @@ public interface PatentService {
 
     List<TemplateProperty> getTemplateProperty(int id);
 
+    List<JSONObject> getImportTemplate(int id);
+
     int editFileProperty(PatentProperty property, Document document);
 
     int deleteFileProperty(PatentProperty property, Document document);
@@ -41,7 +44,7 @@ public interface PatentService {
 
     int applyTemplate(int patentID, int id);
 
-    List<com.alibaba.fastjson.JSONObject> getPatents(int id, int templateId, String filter,int start,int length,String orderIndex,String order,String search);
+    List<JSONObject> getPatents(int id, int templateId, String filter,int start,int length,String orderIndex,String order,String search);
 
     List<Map<String,String>> selectPropertyName(int templateId, String sort, String visible);
 
@@ -59,7 +62,9 @@ public interface PatentService {
 
     Patent getPatent(int patentId);
 
-    Map<Integer,String> getPatentProperty(int id);
+    Map<Integer,JSONObject> getPatentProperty(int id);
+
+    Map<Integer,List<JSONObject>> getPatentProperty(int templateId,int sortId,String value,List<Integer> ids);
 
     int getPatentNewID();
 
@@ -90,4 +95,8 @@ public interface PatentService {
     CpqueryPostInfo getCpqueryPost(String applicationNumber);
 
     CpqueryAnnounceInfo getCpqueryAnnounce(String applicationNumber);
+
+    int saveImportConfig(int templateID, Map<String,Integer> configs);
+
+    int deleteImportConfig(int templateID);
 }

@@ -113,6 +113,9 @@
                   <li aria-haspopup="true" class=" ">
                     <a href="${request.contextPath}/patent/patentlist" class="nav-link  "> 案件列表 </a>
                   </li>
+                  <li aria-haspopup="true" class=" ">
+                    <a href="${request.contextPath}/special/import" class="nav-link  "> 案件导入 </a>
+                  </li>
                   </@shiro.hasPermission>
                 </ul>
               </li>

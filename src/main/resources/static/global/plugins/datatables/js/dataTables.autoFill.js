@@ -1,15 +1,15 @@
-/*! AutoFill 2.2.2
- * ©2008-2017 SpryMedia Ltd - datatables.net/license
+/*! AutoFill 2.3.3
+ * ©2008-2018 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     AutoFill
  * @description Add Excel like click and drag auto-fill options to DataTables
- * @version     2.2.2
+ * @version     2.3.3
  * @file        dataTables.autoFill.js
  * @author      SpryMedia Ltd (www.sprymedia.co.uk)
  * @contact     www.sprymedia.co.uk/contact
- * @copyright   Copyright 2010-2017 SpryMedia Ltd.
+ * @copyright   Copyright 2010-2018 SpryMedia Ltd.
  *
  * This source file is free software, available under the following license:
  *   MIT license - http://datatables.net/license/mit
@@ -358,12 +358,17 @@ $.extend( AutoFill.prototype, {
 		var dt = this.s.dt;
 		var start = this.s.start;
 		var startCell = $(this.dom.start);
-		var endCell = $(target);
 		var end = {
-			row: dt.rows( { page: 'current' } ).nodes().indexOf( endCell.parent()[0] ),
-			column: endCell.index()
+			row: this.c.vertical ?
+				dt.rows( { page: 'current' } ).nodes().indexOf( target.parentNode ) :
+				start.row,
+			column: this.c.horizontal ?
+				$(target).index() :
+				start.column
 		};
 		var colIndx = dt.column.index( 'toData', end.column );
+		var endRow =  dt.row( ':eq('+end.row+')', { page: 'current' } ); // Workaround for M581
+		var endCell = $( dt.cell( endRow.index(), colIndx ).node() );
 
 		// Be sure that is a DataTables controlled cell
 		if ( ! dt.cell( endCell ).any() ) {
@@ -384,10 +389,10 @@ $.extend( AutoFill.prototype, {
 		left   = start.column < end.column ? startCell : endCell;
 		right  = start.column < end.column ? endCell   : startCell;
 
-		top    = this._getPosition( top ).top;
-		left   = this._getPosition( left ).left;
-		height = this._getPosition( bottom ).top + bottom.outerHeight() - top;
-		width  = this._getPosition( right ).left + right.outerWidth() - left;
+		top    = this._getPosition( top.get(0) ).top;
+		left   = this._getPosition( left.get(0) ).left;
+		height = this._getPosition( bottom.get(0) ).top + bottom.outerHeight() - top;
+		width  = this._getPosition( right.get(0) ).left + right.outerWidth() - left;
 
 		var select = this.dom.select;
 		select.top.css( {
@@ -580,29 +585,36 @@ $.extend( AutoFill.prototype, {
 	_getPosition: function ( node, targetParent )
 	{
 		var
-			currNode = $(node),
+			currNode = node,
 			currOffsetParent,
-			position,
 			top = 0,
 			left = 0;
 
 		if ( ! targetParent ) {
-			targetParent = $( this.s.dt.table().node() ).offsetParent();
+			targetParent = $( $( this.s.dt.table().node() )[0].offsetParent );
 		}
 
 		do {
-			position = currNode.position();
-			currOffsetParent = currNode.offsetParent();
+			// Don't use jQuery().position() the behaviour changes between 1.x and 3.x for
+			// tables
+			var positionTop = currNode.offsetTop;
+			var positionLeft = currNode.offsetLeft;
 
-			top += position.top + currOffsetParent.scrollTop();
-			left += position.left + currOffsetParent.scrollLeft();
+			// jQuery doesn't give a `table` as the offset parent oddly, so use DOM directly
+			currOffsetParent = $( currNode.offsetParent );
+
+			top += positionTop + currOffsetParent.scrollTop();
+			left += positionLeft + currOffsetParent.scrollLeft();
+
+			top += parseInt( currOffsetParent.css('margin-top') ) * 1;
+			top += parseInt( currOffsetParent.css('border-top-width') ) * 1;
 
 			// Emergency fall back. Shouldn't happen, but just in case!
-			if ( currNode.get(0).nodeName.toLowerCase() === 'body' ) {
+			if ( currNode.nodeName.toLowerCase() === 'body' ) {
 				break;
 			}
 
-			currNode = currOffsetParent; // for next loop
+			currNode = currOffsetParent.get(0); // for next loop
 		}
 		while ( currOffsetParent.get(0) !== targetParent.get(0) )
 
@@ -695,6 +707,7 @@ $.extend( AutoFill.prototype, {
 	{
 		$(document.body).off( '.autoFill' );
 
+		var that = this;
 		var dt = this.s.dt;
 		var select = this.dom.select;
 		select.top.remove();
@@ -713,6 +726,31 @@ $.extend( AutoFill.prototype, {
 			return;
 		}
 
+		var startDt = dt.cell( ':eq('+start.row+')', start.column+':visible', {page:'current'} );
+
+		// If Editor is active inside this cell (inline editing) we need to wait for Editor to
+		// submit and then we can loop back and trigger the fill.
+		if ( $('div.DTE', startDt.node()).length ) {
+			var editor = dt.editor();
+
+			editor
+				.on( 'submitSuccess.dtaf close.dtaf', function () {
+					editor.off( '.dtaf');
+
+					setTimeout( function () {
+						that._mouseup( e );
+					}, 100 );
+				} )
+				.on( 'submitComplete.dtaf preSubmitCancelled.dtaf close.dtaf', function () {
+					editor.off( '.dtaf');
+				} );
+
+			// Make the current input submit
+			editor.submit();
+
+			return;
+		}
+
 		// Build a matrix representation of the selected rows
 		var rows       = this._range( start.row, end.row );
 		var columns    = this._range( start.column, end.column );
@@ -726,7 +764,8 @@ $.extend( AutoFill.prototype, {
 		for ( var rowIdx=0 ; rowIdx<rows.length ; rowIdx++ ) {
 			selected.push(
 				$.map( columns, function (column) {
-					var cell = dt.cell( ':eq('+rows[rowIdx]+')', column+':visible', {page:'current'} );
+					var row = dt.row( ':eq('+rows[rowIdx]+')', {page:'current'} ); // Workaround for M581
+					var cell = dt.cell( row.index(), column+':visible' );
 					var data = cell.data();
 					var cellIndex = cell.index();
 					var editField = dtColumns[ cellIndex.column ].editField;
@@ -907,6 +946,7 @@ $.extend( AutoFill.prototype, {
 
 		var dt = this.s.dt;
 		var cell;
+		var columns = dt.columns( this.c.columns ).indexes();
 
 		// Potentially allow modifications to the cells matrix
 		this._emitEvent( 'preAutoFill', [ dt, cells ] );
@@ -927,7 +967,9 @@ $.extend( AutoFill.prototype, {
 				for ( var j=0, jen=cells[i].length ; j<jen ; j++ ) {
 					cell = cells[i][j];
 
-					cell.cell.data( cell.set );
+					if ( columns.indexOf(cell.index.column) !== -1 ) {
+						cell.cell.data( cell.set );
+					}
 				}
 			}
 
@@ -950,7 +992,10 @@ $.extend( AutoFill.prototype, {
 AutoFill.actions = {
 	increment: {
 		available: function ( dt, cells ) {
-			return $.isNumeric( cells[0][0].label );
+			var d = cells[0][0].label;
+
+			// is numeric test based on jQuery's old `isNumeric` function
+			return !isNaN( d - parseFloat( d ) );
 		},
 
 		option: function ( dt, cells ) {
@@ -1055,7 +1100,7 @@ AutoFill.actions = {
  * @static
  * @type      String
  */
-AutoFill.version = '2.2.2';
+AutoFill.version = '2.3.3';
 
 
 /**
@@ -1080,7 +1125,13 @@ AutoFill.defaults = {
 	update: null, // false is editor given, true otherwise
 
 	/** @type {DataTable.Editor} Editor instance for automatic submission */
-	editor: null
+	editor: null,
+
+	/** @type {boolean} Enable vertical fill */
+	vertical: true,
+
+	/** @type {boolean} Enable horizontal fill */
+	horizontal: true
 };
 
 

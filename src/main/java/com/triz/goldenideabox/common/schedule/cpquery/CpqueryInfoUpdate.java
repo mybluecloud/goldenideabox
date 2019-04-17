@@ -3,6 +3,8 @@ package com.triz.goldenideabox.common.schedule.cpquery;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.triz.goldenideabox.common.helper.FileUploadHelper;
+import com.triz.goldenideabox.constant.CpqueryState;
 import com.triz.goldenideabox.dao.CpqueryAnnounceInfoMapper;
 import com.triz.goldenideabox.dao.CpqueryApplicationInfoMapper;
 import com.triz.goldenideabox.dao.CpqueryCostInfoMapper;
@@ -28,10 +30,7 @@ import com.triz.goldenideabox.model.PatentRecord;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +39,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -106,7 +104,7 @@ public class CpqueryInfoUpdate {
 
 
     @Async
-    public void executeCpquery(CloseableHttpClient httpclient, Cpquery cpquery,String checks,boolean isWhole) {
+    public void executeCpquery(CloseableHttpClient httpclient, Cpquery cpquery, String checks, boolean isWhole) {
         int status = 0;
         int countQueried = 0;
         int successQueried = 0;
@@ -138,103 +136,100 @@ public class CpqueryInfoUpdate {
             for (CpqueryResult result : results) {
                 cpqueryResultMapper.updateTime(result.getApplicationNumber());
                 //申请信息查询
-                int retCode = queryApplicationInfo(httpclient, cpquery,result);
-                if (retCode > 0) {
+                int retCode = queryApplicationInfo(httpclient, cpquery, result);
+                if (retCode == CpqueryState.FAIL) {
                     ++applicationQueried;
-                    cpqueryResultMapper.updateApplicationStatus(result.getApplicationNumber(),2);
+                    cpqueryResultMapper.updateApplicationStatus(result.getApplicationNumber(), CpqueryState.FAIL);
                     getCpqueryToken(httpclient);
                     continue;
                 } else {
-                    cpqueryResultMapper.updateApplicationStatus(result.getApplicationNumber(),1);
+                    cpqueryResultMapper.updateApplicationStatus(result.getApplicationNumber(), retCode);
                 }
 
                 //审查信息查询
-                if (checks.substring(0,1).equalsIgnoreCase("1")) {
+                if (checks.substring(0, 1).equalsIgnoreCase("1")) {
 
                     try {
-                        retCode = 1;
+                        retCode = CpqueryState.FAIL;
                         retCode = queryReviewInfo(httpclient, result);
 
                     } catch (Exception e) {
-                        logger.error("执行审查信息异常",e);
+                        e.printStackTrace();
+                        logger.error("执行审查信息异常", e);
                     }
-                    if (retCode > 0) {
+                    if (retCode == CpqueryState.FAIL) {
                         ++reviewQueried;
-                        cpqueryResultMapper.updateReviewStatus(result.getApplicationNumber(),2);
+                        cpqueryResultMapper.updateReviewStatus(result.getApplicationNumber(), CpqueryState.FAIL);
                         getCpqueryToken(httpclient);
                     } else {
-                        cpqueryResultMapper.updateReviewStatus(result.getApplicationNumber(),1);
+                        cpqueryResultMapper.updateReviewStatus(result.getApplicationNumber(), retCode);
                     }
                 } else {
-                    cpqueryResultMapper.updateReviewStatus(result.getApplicationNumber(),0);
+                    cpqueryResultMapper.updateReviewStatus(result.getApplicationNumber(), CpqueryState.NOEXECUTE);
                 }
 
-
                 //费用信息查询
-                if (checks.substring(2,3).equalsIgnoreCase("1")) {
+                if (checks.substring(2, 3).equalsIgnoreCase("1")) {
 
                     try {
-                        retCode = 1;
+                        retCode = CpqueryState.FAIL;
                         retCode = queryCostInfo(httpclient, result);
 
                     } catch (Exception e) {
-                        logger.error("执行费用信息异常",e);
+                        logger.error("执行费用信息异常", e);
                     }
-                    if (retCode > 0) {
+                    if (retCode == CpqueryState.FAIL) {
                         ++costQueried;
-                        cpqueryResultMapper.updateCostStatus(result.getApplicationNumber(),2);
+                        cpqueryResultMapper.updateCostStatus(result.getApplicationNumber(), CpqueryState.FAIL);
                         getCpqueryToken(httpclient);
                     } else {
-                        cpqueryResultMapper.updateCostStatus(result.getApplicationNumber(),1);
+                        cpqueryResultMapper.updateCostStatus(result.getApplicationNumber(), retCode);
                     }
                 } else {
-                    cpqueryResultMapper.updateCostStatus(result.getApplicationNumber(),0);
+                    cpqueryResultMapper.updateCostStatus(result.getApplicationNumber(), CpqueryState.NOEXECUTE);
                 }
 
-
                 //发文信息查询
-                if (checks.substring(4,5).equalsIgnoreCase("1")) {
+                if (checks.substring(4, 5).equalsIgnoreCase("1")) {
 
                     try {
-                        retCode = 1;
+                        retCode = CpqueryState.FAIL;
                         retCode = queryPostInfo(httpclient, result);
 
                     } catch (Exception e) {
-                        logger.error("执行发文信息异常",e);
+                        logger.error("执行发文信息异常", e);
                     }
-                    if (retCode > 0) {
+                    if (retCode == CpqueryState.FAIL) {
                         ++postQueried;
-                        cpqueryResultMapper.updatePostStatus(result.getApplicationNumber(),2);
+                        cpqueryResultMapper.updatePostStatus(result.getApplicationNumber(), CpqueryState.FAIL);
                         getCpqueryToken(httpclient);
                     } else {
-                        cpqueryResultMapper.updatePostStatus(result.getApplicationNumber(),1);
+                        cpqueryResultMapper.updatePostStatus(result.getApplicationNumber(), retCode);
                     }
                 } else {
-                    cpqueryResultMapper.updatePostStatus(result.getApplicationNumber(),0);
+                    cpqueryResultMapper.updatePostStatus(result.getApplicationNumber(), CpqueryState.NOEXECUTE);
                 }
-
 
                 //公布公告查询
                 if (checks.substring(6).equalsIgnoreCase("1")) {
 
                     try {
-                        retCode = 1;
+                        retCode = CpqueryState.FAIL;
                         retCode = queryAnnounceInfo(httpclient, result);
 
                     } catch (Exception e) {
-                        logger.error("执行公布公告异常",e);
+                        logger.error("执行公布公告异常", e);
                     }
-                    if (retCode > 0) {
+                    if (retCode == CpqueryState.FAIL) {
                         ++announceQueried;
-                        cpqueryResultMapper.updateAnnounceStatus(result.getApplicationNumber(),2);
+                        cpqueryResultMapper.updateAnnounceStatus(result.getApplicationNumber(), CpqueryState.FAIL);
                         getCpqueryToken(httpclient);
                     } else {
-                        cpqueryResultMapper.updateAnnounceStatus(result.getApplicationNumber(),1);
+                        cpqueryResultMapper.updateAnnounceStatus(result.getApplicationNumber(), retCode);
                     }
                 } else {
-                    cpqueryResultMapper.updateAnnounceStatus(result.getApplicationNumber(),0);
+                    cpqueryResultMapper.updateAnnounceStatus(result.getApplicationNumber(), CpqueryState.NOEXECUTE);
                 }
-
 
                 if (!isRun) {
                     break;
@@ -266,7 +261,7 @@ public class CpqueryInfoUpdate {
         strLogInfo = String.format(
                 "执行查询任务（编号：%d）%s。预计查询数为%d，完成查询数为%d，申请信息查询失败数为%d，审查信息查询失败数为%d，费用信息查询失败数为%d，发文信息查询失败数为%d，公布公告查询失败数为%d，未查询数为%d。",
                 cpquery.getId(), strStatus, countQueried, successQueried,
-                applicationQueried,reviewQueried,costQueried,postQueried,announceQueried, notQueried);
+                applicationQueried, reviewQueried, costQueried, postQueried, announceQueried, notQueried);
 
         OperationLog log = new OperationLog();
         log.setCategory(LogCategory.CPQUERY);
@@ -319,9 +314,10 @@ public class CpqueryInfoUpdate {
         httpresponse.close();
     }
 
-    private int queryApplicationInfo(CloseableHttpClient httpclient, Cpquery cpquery,CpqueryResult result) throws Exception {
+    private int queryApplicationInfo(CloseableHttpClient httpclient, Cpquery cpquery, CpqueryResult result) throws Exception {
 
         long flag = System.currentTimeMillis();
+        int state = CpqueryState.SUCCESS;
 
         CpqueryApplicationInfo cpqueryApplicationInfo = cpqueryApplicationInfoMapper.selectByPrimaryKey(result.getApplicationNumber());
 
@@ -373,7 +369,11 @@ public class CpqueryInfoUpdate {
 
         lst = doc.select("span[name='record_zlx:anjianywzt']");
         if (lst != null && !lst.isEmpty()) {
-            cpqueryApplicationInfo.setCaseStatus(getRealValue(lst, 0, idlst));
+            String value = getRealValue(lst, 0, idlst);
+            if (!value.equalsIgnoreCase(cpqueryApplicationInfo.getCaseStatus())) {
+                state = CpqueryState.CHANGE;
+                cpqueryApplicationInfo.setCaseStatus(value);
+            }
         }
 
         lst = doc.select("span[name='record_zlx:zhufenlh']");
@@ -441,20 +441,23 @@ public class CpqueryInfoUpdate {
             }
         }
 
-        cpqueryApplicationInfo.setProjectChange(array.toJSONString());
+
+        if (!array.toJSONString().equalsIgnoreCase(cpqueryApplicationInfo.getProjectChange())) {
+            state = CpqueryState.CHANGE;
+            cpqueryApplicationInfo.setProjectChange(array.toJSONString());
+        }
 
 
         cpqueryApplicationInfoMapper.insert(cpqueryApplicationInfo);
 
-        String value = patentPropertyMapper.getPropertyValue(result.getPatentId(),cpquery.getStatusField());
+        String value = patentPropertyMapper.getPropertyValue(result.getPatentId(), cpquery.getStatusField());
         if (value != null && value.compareTo(cpqueryApplicationInfo.getCaseStatus()) != 0) {
-            String statusName = patentPropertyMapper.getPropertyName(result.getPatentId(),cpquery.getStatusField());
+            String statusName = patentPropertyMapper.getPropertyName(result.getPatentId(), cpquery.getStatusField());
             PatentRecord record = new PatentRecord();
             record.setRecordType(1);
             record.setPatentId(result.getPatentId());
-            record.setReocrd(statusName + " 变更为 "+cpqueryApplicationInfo.getCaseStatus());
+            record.setReocrd(statusName + " 变更为 " + cpqueryApplicationInfo.getCaseStatus());
             patentRecordMapper.insert(record);
-
 
             PatentProperty property = new PatentProperty();
             property.setPatentId(result.getPatentId());
@@ -463,20 +466,16 @@ public class CpqueryInfoUpdate {
             patentPropertyMapper.editProperty(property);
         }
 
-
-
         httpresponse.close();
 
-        return 0;
+        return state;
     }
 
 
     private int queryReviewInfo(CloseableHttpClient httpclient, CpqueryResult result) throws Exception {
 
         long flag = System.currentTimeMillis();
-        int retCode = 0;
-        List<String> idlst = cpqueryReviewInfoMapper.selectIdListByApplicationNumber(result.getApplicationNumber());
-
+        int state = CpqueryState.SUCCESS;
 
         String url = "http://cpquery.sipo.gov.cn/txnQueryPatentFileData.do?select-key:shenqingh="
                 + result.getApplicationNumber()
@@ -539,15 +538,14 @@ public class CpqueryInfoUpdate {
 
         String fileData = EntityUtils.toString(httpresponse.getEntity(), "UTF-8");
 
-        //FileUploadHelper.saveAsFileWriter(document + result.getApplicationNumber() , "file.xml",fileData);
+        //FileUploadHelper.saveAsFileWriter(document + result.getApplicationNumber(), "file.json", fileData);
         JSONObject jsonObject = JSON.parseObject(fileData);
 
         if (!jsonObject.getString("error-code").equalsIgnoreCase("000000")) {
-            return 1;
+            return CpqueryState.FAIL;
         }
 
         JSONArray fileArray = jsonObject.getJSONArray("result");
-
 
         for (int i = 0; i < fileArray.size(); ++i) {
 
@@ -560,55 +558,50 @@ public class CpqueryInfoUpdate {
             }
             String type = file.getString("wenjianlx");
             int showcont = file.getInteger("showcont");
+            if (showcont != 2) {
+                continue;
+            }
 
             //去掉按类型获取，通过type不为空来获取所有文件，否则新添加的文件类型无法获取
             //&& (type.equalsIgnoreCase("01") || type.equalsIgnoreCase("02") || type.equalsIgnoreCase("03"))
-            if (!idlst.contains(id) ) {
-                CpqueryReviewInfo cpqueryReviewInfo = cpqueryReviewInfoMapper.selectByPrimaryKey(id);
-                if (cpqueryReviewInfo == null) {
-                    cpqueryReviewInfo = new CpqueryReviewInfo();
-                }
-                String fileUrl = cpqueryReviewInfo.getFileUrl();
-                if (fileUrl != null && fileUrl.length() > 3) {
-                    continue;
-                }
 
-
-                cpqueryReviewInfo.setId(id);
-                cpqueryReviewInfo.setApplicationNumber(result.getApplicationNumber());
-                cpqueryReviewInfo.setFileName(file.getString("filename"));
-                cpqueryReviewInfo.setType(type);
-
-                if (showcont == 2) {
-                    for (int j = 0;j < 3;j++) {
-                        fileUrl = getReviewInfoFile(httpclient,result.getApplicationNumber(),id,file.getString("fid"),
-                                type,file.getString("filecode"));
-                        if (fileUrl.length() > 0) {
-                            cpqueryReviewInfo.setFileUrl(fileUrl);
-                            break;
-                        }
-                    }
-                } else {
-                    cpqueryReviewInfo.setFileUrl("");
-                }
-
-
-
-                cpqueryReviewInfoMapper.insert(cpqueryReviewInfo);
-
-                if (cpqueryReviewInfo.getFileUrl() == null ||cpqueryReviewInfo.getFileUrl().length() == 0) {
-                    retCode = 1;
-                }
-
+            CpqueryReviewInfo cpqueryReviewInfo = cpqueryReviewInfoMapper.selectByPrimaryKey(id);
+            if (cpqueryReviewInfo == null) {
+                cpqueryReviewInfo = new CpqueryReviewInfo();
+                state = CpqueryState.CHANGE;
             }
+            String fileUrl = cpqueryReviewInfo.getFileUrl();
+            if (fileUrl != null && fileUrl.length() > 0) {
+                continue;
+            }
+
+
+            cpqueryReviewInfo.setId(id);
+            cpqueryReviewInfo.setApplicationNumber(result.getApplicationNumber());
+            cpqueryReviewInfo.setFileName(file.getString("filename"));
+            cpqueryReviewInfo.setType(type);
+
+            for (int j = 0; j < 3; j++) {
+                fileUrl = getReviewInfoFile(httpclient, result.getApplicationNumber(), id, file.getString("fid"),
+                        type, file.getString("filecode"));
+                if (fileUrl.length() > 0) {
+                    cpqueryReviewInfo.setFileUrl(fileUrl);
+                    break;
+                }
+            }
+
+            cpqueryReviewInfoMapper.insert(cpqueryReviewInfo);
+
+            if (cpqueryReviewInfo.getFileUrl() == null || cpqueryReviewInfo.getFileUrl().length() == 0) {
+                state = CpqueryState.FAIL;
+            }
+
 
         }
 
-
-
         httpresponse.close();
 
-        return retCode;
+        return state;
     }
 
     private String getReviewInfoFile(CloseableHttpClient httpclient, String applicationNumber, String rid, String fid, String type, String filecode)
@@ -624,7 +617,7 @@ public class CpqueryInfoUpdate {
         formparams.add(new BasicNameValuePair("select-key:wendanglx", "01"));
         formparams.add(new BasicNameValuePair("select-key:wenjiandm", filecode));
         formparams.add(new BasicNameValuePair("inner-flag:open-type", "new-window"));
-        formparams.add(new BasicNameValuePair("inner-flag:freeze-stamp", System.currentTimeMillis()+""));
+        formparams.add(new BasicNameValuePair("inner-flag:freeze-stamp", System.currentTimeMillis() + ""));
         formparams.add(new BasicNameValuePair("charset-encoding", "UTF-8"));
 
         UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(formparams, "UTF-8");
@@ -644,7 +637,6 @@ public class CpqueryInfoUpdate {
         httppost.setHeader("Pragma", "no-cache");
         httppost.setHeader("X-Requested-With", "XMLHttpRequest");
 
-
         CloseableHttpResponse httpresponse = httpclient.execute(httppost);
 
         SAXReader reader = new SAXReader();
@@ -656,7 +648,7 @@ public class CpqueryInfoUpdate {
             return "";
         }
         org.dom4j.Element element = root.element("record").element("url");
-        if (element != null ) {
+        if (element != null) {
             if (element.getTextTrim().equalsIgnoreCase("/layout/images/empty_date.png")) {
                 return "";
             }
@@ -670,13 +662,13 @@ public class CpqueryInfoUpdate {
             logger.error(doc.asXML());
         }
         for (int i = 0; i < records.size(); ++i) {
-            if (records.get(i).element("url")!= null) {
-                String fileName = downloadReviewInfoFile(httpclient,applicationNumber,records.get(i).element("url").getTextTrim(),
+            if (records.get(i).element("url") != null) {
+                String fileName = downloadReviewInfoFile(httpclient, applicationNumber, records.get(i).element("url").getTextTrim(),
                         records.get(i).element("imgToken").getTextTrim());
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put(String.valueOf(i), fileName);
-                array.add(i,jsonObject);
+                array.add(i, jsonObject);
             }
 
         }
@@ -686,9 +678,9 @@ public class CpqueryInfoUpdate {
         return array.toJSONString();
     }
 
-    private String downloadReviewInfoFile(CloseableHttpClient httpclient,String applicationNumber, String url, String imgToken) throws Exception {
+    private String downloadReviewInfoFile(CloseableHttpClient httpclient, String applicationNumber, String url, String imgToken) throws Exception {
 
-        HttpGet httpget = new HttpGet("http://cpquery.sipo.gov.cn/freeze.main?txn-code=txnImgToken&token="+url+"&imgToken=" + imgToken);
+        HttpGet httpget = new HttpGet("http://cpquery.sipo.gov.cn/freeze.main?txn-code=txnImgToken&token=" + url + "&imgToken=" + imgToken);
 
         httpget.setHeader("User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36");
@@ -701,10 +693,9 @@ public class CpqueryInfoUpdate {
         httpget.setHeader("Pragma", "no-cache");
         CloseableHttpResponse httpresponse = httpclient.execute(httpget);
         if (httpresponse.getStatusLine().getStatusCode() != 200) {
-            logger.error("请求文件失败",httpresponse);
+            logger.error("请求文件失败", httpresponse);
             return "";
         }
-
 
         InputStream in = httpresponse.getEntity().getContent();
         String fileName = UUID.randomUUID().toString().replace("-", "").toLowerCase() + ".jpg";
@@ -715,7 +706,6 @@ public class CpqueryInfoUpdate {
         }
 
         file = new File(document + applicationNumber + File.separator + fileName);
-
 
         BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
 
@@ -736,6 +726,7 @@ public class CpqueryInfoUpdate {
 
     private int queryCostInfo(CloseableHttpClient httpclient, CpqueryResult result) throws Exception {
 
+        int state = CpqueryState.SUCCESS;
         long flag = System.currentTimeMillis();
 
         CpqueryCostInfo cpqueryCostInfo = cpqueryCostInfoMapper.selectByPrimaryKey(result.getApplicationNumber());
@@ -781,7 +772,6 @@ public class CpqueryInfoUpdate {
 
         List<String> idlst = getSipoIds(doc);
 
-
         //应缴费信息
         JSONArray payableArray = JSON.parseArray("[]");
 
@@ -818,8 +808,10 @@ public class CpqueryInfoUpdate {
             }
         }
 
-        cpqueryCostInfo.setPayable(payableArray.toJSONString());
-
+        if (!payableArray.toJSONString().equalsIgnoreCase(cpqueryCostInfo.getPayable())) {
+            state = CpqueryState.CHANGE;
+            cpqueryCostInfo.setPayable(payableArray.toJSONString());
+        }
 
         //已缴费信息
         JSONArray paidArray = JSON.parseArray("[]");
@@ -865,7 +857,11 @@ public class CpqueryInfoUpdate {
             }
         }
 
-        cpqueryCostInfo.setPaid(paidArray.toJSONString());
+        if (!paidArray.toJSONString().equalsIgnoreCase(cpqueryCostInfo.getPaid())) {
+            state = CpqueryState.CHANGE;
+            cpqueryCostInfo.setPaid(paidArray.toJSONString());
+        }
+
 
         //退费信息
 
@@ -873,18 +869,16 @@ public class CpqueryInfoUpdate {
 
         //收据发文信息
 
-
-
-        
         cpqueryCostInfoMapper.insert(cpqueryCostInfo);
 
         httpresponse.close();
 
-        return 0;
+        return state;
     }
 
     private int queryPostInfo(CloseableHttpClient httpclient, CpqueryResult result) throws Exception {
 
+        int state = CpqueryState.SUCCESS;
         long flag = System.currentTimeMillis();
 
         CpqueryPostInfo cpqueryPostInfo = cpqueryPostInfoMapper.selectByPrimaryKey(result.getApplicationNumber());
@@ -929,7 +923,6 @@ public class CpqueryInfoUpdate {
         token = getHiddenValue(doc, "sq_token");
 
         List<String> idlst = getSipoIds(doc);
-
 
         //通知书发文
         JSONArray noticeArray = JSON.parseArray("[]");
@@ -991,9 +984,11 @@ public class CpqueryInfoUpdate {
             }
         }
 
+        if (!noticeArray.toJSONString().equalsIgnoreCase(cpqueryPostInfo.getNotice())) {
+            state = CpqueryState.CHANGE;
+            cpqueryPostInfo.setNotice(noticeArray.toJSONString());
+        }
 
-
-        cpqueryPostInfo.setNotice(noticeArray.toJSONString());
 
 
         //专利证书
@@ -1024,18 +1019,23 @@ public class CpqueryInfoUpdate {
             }
         }
 
-        cpqueryPostInfo.setPatentCertificate(patentCertificateArray.toJSONString());
+        if (!patentCertificateArray.toJSONString().equalsIgnoreCase(cpqueryPostInfo.getPatentCertificate())) {
+            state = CpqueryState.CHANGE;
+            cpqueryPostInfo.setPatentCertificate(patentCertificateArray.toJSONString());
+        }
+
         //退信
 
         cpqueryPostInfoMapper.insert(cpqueryPostInfo);
 
         httpresponse.close();
 
-        return 0;
+        return state;
     }
 
     private int queryAnnounceInfo(CloseableHttpClient httpclient, CpqueryResult result) throws Exception {
 
+        int state = CpqueryState.SUCCESS;
         long flag = System.currentTimeMillis();
 
         CpqueryAnnounceInfo cpqueryAnnounceInfo = cpqueryAnnounceInfoMapper.selectByPrimaryKey(result.getApplicationNumber());
@@ -1081,7 +1081,6 @@ public class CpqueryInfoUpdate {
 
         List<String> idlst = getSipoIds(doc);
 
-
         //发明公布/授权公告
         JSONArray publishArray = JSON.parseArray("[]");
 
@@ -1118,10 +1117,10 @@ public class CpqueryInfoUpdate {
             }
         }
 
-
-
-
-        cpqueryAnnounceInfo.setPublish(publishArray.toJSONString());
+        if (!publishArray.toJSONString().equalsIgnoreCase(cpqueryAnnounceInfo.getPublish())) {
+            state = CpqueryState.CHANGE;
+            cpqueryAnnounceInfo.setPublish(publishArray.toJSONString());
+        }
 
 
         //事务公告
@@ -1152,13 +1151,17 @@ public class CpqueryInfoUpdate {
             }
         }
 
-        cpqueryAnnounceInfo.setTransactionPublish(transactionPublishArray.toJSONString());
+        if (!transactionPublishArray.toJSONString().equalsIgnoreCase(cpqueryAnnounceInfo.getTransactionPublish())) {
+            state = CpqueryState.CHANGE;
+            cpqueryAnnounceInfo.setTransactionPublish(transactionPublishArray.toJSONString());
+        }
+
 
         cpqueryAnnounceInfoMapper.insert(cpqueryAnnounceInfo);
 
         httpresponse.close();
 
-        return 0;
+        return state;
     }
 
     private List<String> getSipoIds(Document doc) {

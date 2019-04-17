@@ -1,6 +1,8 @@
 package com.triz.goldenideabox.dao;
 
+import com.alibaba.fastjson.JSONObject;
 import com.triz.goldenideabox.model.PatentProperty;
+import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
@@ -18,7 +20,10 @@ public interface PatentPropertyMapper {
 
 
     @MapKey("sort_id")
-    Map<Integer,String> getProperty(Integer id);
+    Map<Integer,JSONObject> getProperty(Integer id);
+
+
+    Map<Integer,List<JSONObject>> getPropertyByValue(@Param("templateId")Integer templateId,@Param("sortId")Integer sortId,@Param("value")String value,@Param("ids")List<Integer> ids);
 
     String getPropertyName(@Param("id")Integer id,@Param("sortId")Integer sortId);
 

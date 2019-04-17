@@ -12,10 +12,11 @@
     <result column="order_list" jdbcType="VARCHAR" property="orderList" />
     <result column="visible_list" jdbcType="VARCHAR" property="visibleList" />
     <result column="page_length" jdbcType="INTEGER" property="pageLength" />
+    <result column="search_list" jdbcType="INTEGER" property="searchList" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_id, template_id, configName, filter, left_fixed_sum, right_fixed_sum, order_list, 
-    visible_list, page_length
+    visible_list, page_length, search_list
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -35,11 +36,11 @@
     insert into t_display_config ( user_id, template_id,
     configName, filter, left_fixed_sum,
     right_fixed_sum, order_list, visible_list,
-    page_length)
+    page_length,search_list)
     values ( #{userId,jdbcType=INTEGER}, #{templateId,jdbcType=INTEGER},
     #{configname,jdbcType=VARCHAR}, #{filter,jdbcType=VARCHAR}, #{leftFixedSum,jdbcType=INTEGER},
     #{rightFixedSum,jdbcType=INTEGER}, #{orderList,jdbcType=VARCHAR}, #{visibleList,jdbcType=VARCHAR},
-    #{pageLength,jdbcType=INTEGER})
+    #{pageLength,jdbcType=INTEGER}, #{searchList,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.triz.goldenideabox.model.DisplayConfig">
     insert into t_display_config
@@ -74,6 +75,9 @@
       <if test="pageLength != null">
         page_length,
       </if>
+      <if test="searchList != null">
+        search_list,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -105,6 +109,9 @@
       </if>
       <if test="pageLength != null">
         #{pageLength,jdbcType=INTEGER},
+      </if>
+      <if test="searchList != null">
+        #{searchList,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -138,6 +145,10 @@
       <if test="pageLength != null">
         page_length = #{pageLength,jdbcType=INTEGER},
       </if>
+      <if test="searchList != null">
+        search_list = #{searchList,jdbcType=VARCHAR},
+      </if>
+
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -151,7 +162,8 @@
       right_fixed_sum = #{rightFixedSum,jdbcType=INTEGER},
       order_list = #{orderList,jdbcType=VARCHAR},
       visible_list = #{visibleList,jdbcType=VARCHAR},
-      page_length = #{pageLength,jdbcType=INTEGER}
+      page_length = #{pageLength,jdbcType=INTEGER},
+      search_list = #{searchList,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectConfigByID" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -162,7 +174,6 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectConfigByUserID" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-
     select
     <include refid="Base_Column_List" />
     from t_display_config

@@ -288,6 +288,24 @@ var App = function () {
       };
     },
 
+    scrollTo: function(el, offeset) {
+      var pos = (el && el.size() > 0) ? el.offset().top : 0;
+
+      if (el) {
+        if ($('body').hasClass('page-header-fixed')) {
+          pos = pos - $('.page-header').height();
+        } else if ($('body').hasClass('page-header-top-fixed')) {
+          pos = pos - $('.page-header-top').height();
+        } else if ($('body').hasClass('page-header-menu-fixed')) {
+          pos = pos - $('.page-header-menu').height();
+        }
+        pos = pos + (offeset ? offeset : -1 * el.height());
+      }
+
+      $('html,body').animate({
+        scrollTop: pos
+      }, 'slow');
+    },
 
     initSlimScroll: function(el) {
       if (!$().slimScroll) {
@@ -367,6 +385,76 @@ var App = function () {
 
         }
       });
+    },
+
+    // wrApper function to  block element(indicate loading)
+    blockUI: function(options) {
+      options = $.extend(true, {}, options);
+      var html = '';
+      if (options.animate) {
+        html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '">' + '<div class="block-spinner-bar"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>' + '</div>';
+      } else if (options.iconOnly) {
+        html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="' + this.getGlobalImgPath() + 'loading-spinner-grey.gif" align=""></div>';
+      } else if (options.textOnly) {
+        html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><span>&nbsp;&nbsp;' + (options.message ? options.message : '加载中...') + '</span></div>';
+      } else {
+        html = '<div class="loading-message ' + (options.boxed ? 'loading-message-boxed' : '') + '"><img src="' + this.getGlobalImgPath() + 'loading-spinner-grey.gif" align=""><span>&nbsp;&nbsp;' + (options.message ? options.message : '加载中...') + '</span></div>';
+      }
+
+      if (options.target) { // element blocking
+        var el = $(options.target);
+        if (el.height() <= ($(window).height())) {
+          options.cenrerY = true;
+        }
+        el.block({
+          message: html,
+          baseZ: options.zIndex ? options.zIndex : 1000,
+          centerY: options.cenrerY !== undefined ? options.cenrerY : false,
+          css: {
+            top: '10%',
+            border: '0',
+            padding: '0',
+            backgroundColor: 'none'
+          },
+          overlayCSS: {
+            backgroundColor: options.overlayColor ? options.overlayColor : '#555',
+            opacity: options.boxed ? 0.05 : 0.1,
+            cursor: 'wait'
+          }
+        });
+      } else { // page blocking
+        $.blockUI({
+          message: html,
+          baseZ: options.zIndex ? options.zIndex : 1000,
+          css: {
+            border: '0',
+            padding: '0',
+            backgroundColor: 'none'
+          },
+          overlayCSS: {
+            backgroundColor: options.overlayColor ? options.overlayColor : '#555',
+            opacity: options.boxed ? 0.05 : 0.1,
+            cursor: 'wait'
+          }
+        });
+      }
+    },
+
+    // wrApper function to  un-block element(finish loading)
+    unblockUI: function(target) {
+      if (target) {
+        $(target).unblock({
+          onUnblock: function() {
+            $(target).css('position', '');
+            $(target).css('zoom', '');
+          }
+        });
+      } else {
+        $.unblockUI();
+      }
+    },
+    getGlobalImgPath: function() {
+      return '../global/img/';
     },
 
     getResponsiveBreakpoint: function (size) {

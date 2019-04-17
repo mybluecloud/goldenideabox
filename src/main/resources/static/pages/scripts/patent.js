@@ -32,7 +32,7 @@ var Patent = function () {
               code = "<td width='15%'>" + data[i].name
                 + "</td><td width='35%'>"
                 + "<a href='#' id='" + data[i].sortId + "' "
-                + "data-type='text' >" + value + "</a></td>";
+                + "data-type='textarea' >" + value + "</a></td>";
 
               $("#property").children("tr:last-child").append(code);
 
@@ -42,7 +42,6 @@ var Patent = function () {
                 pk: $("#patentID").val()
               });
               break;
-
             case 1:
               //富文本
               code = "<td width='15%'>" + data[i].name
@@ -236,12 +235,55 @@ var Patent = function () {
                 pk: $("#patentID").val(),
                 emptytext: "未设置",
                 datepicker: {
+                	clearBtn: true,
                   language: "zh-CN"
                 }
               });
               break;
             case 6:
               //计算
+              var values = data[i].value.split(";");
+
+              var value1 = new Date();
+              var value2 = new Date();
+              if (values[1] == 4) {
+                if (values[0] != 0 ) {
+                  if (propertys[values[0]] != undefined) {
+                    value1 = Date.parse(propertys[values[0]].value);
+                  } else {
+                    value1 = '';
+                  }
+
+                }
+                if (values[2] != 0 && propertys[values[2]] != undefined) {
+                  if (propertys[values[2]] != undefined) {
+                    value2 = Date.parse(propertys[values[2]].value);
+                  } else {
+                    value2 = '';
+                  }
+                }
+                if (value1 != '' && value2 != '') {
+                  var dateSpan = Math.abs(value1 - value2);
+                  value = Math.floor(dateSpan / (24 * 3600 * 1000));
+                  if (isNaN(value)) {
+                    value = '';
+                  }
+                } else {
+                  value = '';
+                }
+
+              }
+              code = "<td width='15%'>" + data[i].name
+                + "</td><td width='35%'>"
+                + value + "</td>";
+              $("#property").children("tr:last-child").append(code);
+              break;
+            case 7:
+              //系统设置
+              code = "<td width='15%'>" + data[i].name
+                + "</td><td width='35%'>"
+                + value + "</td>";
+              $("#property").children("tr:last-child").append(code);
               break;
 
           }

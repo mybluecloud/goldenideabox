@@ -10,6 +10,7 @@ config.left = 0;
 config.right = 0;
 config.filter = "";
 config.pageLength = 10;
+config.search = "";
 var appoint = false;
 var sortable;
 var cell = {};
@@ -23,23 +24,24 @@ var QueryPatent = function () {
 
     //设置配置modal内容
     var visible = config.visible.split(',');
+    var searchable = config.search.split(',');
     $("#propertys").empty();
 
     for (var i = 0; i < columns.length; i++) {
-      var checked = '';
+      var display = '';
       if (config.visible.length == 0 || visible.in_array(columns[i].data)) {
-        checked = 'checked';
+        display = 'checked';
+      }
+
+      var search = '';
+      if (config.search.length == 0 || searchable.in_array(columns[i].data)) {
+        search = 'checked';
       }
 
       $("#propertys").append("<tr id='" + columns[i].data + "' data-id='" + columns[i].data + "'><td>" + columns[i].title + "</td>"
-          + "<td><input  type='checkbox' class='display' " + checked + "></td></tr>");
+          + "<td><input  type='checkbox' class='display' " + display + "></td>"
+          + "<td><input  type='checkbox' class='search' " + search + "></td></tr>");
 
-
-      // columns[i].render = function (data, type, full, meta) {
-      //   console.info( meta.col);
-      //   //console.info( meta.settings.aoColumns[meta.col].type);
-      //   return  full.id + '' + data;
-      // };
 
     }
 
@@ -69,7 +71,31 @@ var QueryPatent = function () {
             + data.id + '" >';
       }
     }];
-    $.merge(select, columns);
+
+    var columnData = [];
+    for (var index = 0; index < columns.length; index++) {
+
+      var data = {
+        "data": columns[index].data,
+        "title": columns[index].title,
+        "defaultContent": columns[index].defaultContent,
+        render: function( data, type, full, meta ) {
+          if(data){
+            if(data.length>15){
+              return "<span title='"+data+"'>"+ data.substr(0, 12) + "...</span>";
+            }else{
+              return data;
+            }
+          }else{
+            return "";
+          }
+        }
+
+      };
+      columnData.push(data);
+    }
+
+    $.merge(select, columnData);
 
     var action = [{
       "data": null,
@@ -78,7 +104,7 @@ var QueryPatent = function () {
       render: function (data, type, full, meta) {
 
         var action1 = "<a href='" + http_request + "/patent/patent?id=" + data.id
-            + "' class='btn btn-outline btn-circle btn-sm blue'><i class='fa fa-edit'></i>编辑</a>";
+            + "' class='btn btn-outline btn-circle btn-sm blue' target='_blank'><i class='fa fa-edit'></i>编辑</a>";
 
         return action1;
       }
@@ -100,7 +126,7 @@ var QueryPatent = function () {
         }
       }
     }
-
+    var h = $(window).height() - 300;
     table = $('#patentlist').DataTable({
       ajax: {
         url: http_request + "/patent/patents",
@@ -116,26 +142,18 @@ var QueryPatent = function () {
       columns: select,
       processing: true,
       serverSide: true,
-      scrollX: true,
+      deferRender:    true,
+      scrollY:        h,
+      scrollX:        true,
       scrollCollapse: true,
-      //responsive: true,
-      // bAutoWidth: false,
       pageLength: config.pageLength,
-      fixedHeader: true,
+      //fixedHeader: true,
       fixedColumns: { //固定列的配置项
         leftColumns: config.left + offset,
         rightColumns: config.right + 1
       },
       language: {
         "url": http_request + "/global/plugins/datatables/Chinese.json"
-      },
-      order: [],
-      "initComplete": function(settings, json){
-
-        $('.dataTables_scrollBody').on('scroll',function(){
-
-          $('.fixedHeader-floating').scrollLeft($(this).scrollLeft());
-        });
       }
     });
     $('#patentlist tbody').on( 'dblclick', 'td', function () {
@@ -161,7 +179,7 @@ var QueryPatent = function () {
       switch (config.columns[cell.data].type) {
         case 0:
 
-          html = '<input type="text" class="form-control"  value="'+$(this).text()+'">';
+          html = '<textarea class="form-control" >'+$(this).text()+'</textarea>';
           break;
         case 2:
 
@@ -237,7 +255,8 @@ var QueryPatent = function () {
         "visible": config.visible,
         "left": config.left,
         "right": config.right,
-        "pageLength": config.pageLength
+        "pageLength": config.pageLength,
+        "search": config.search
       },
       dataType: 'json',
       success: function (data) {
@@ -253,6 +272,7 @@ var QueryPatent = function () {
         config.right = data.right;
         config.filter = data.filter;
         config.pageLength = data.pageLength;
+        config.search = data.search;
         $("#sql").val(config.filter);
         loadTableConfig(data.columns);
 
@@ -304,16 +324,16 @@ var QueryPatent = function () {
       '<form class="form ">'
       + '<div style="line-height: 1;">'
       + '<div  style="display: table-cell;">'
-      + '<input id="lable_rename" type="text" class="form-control" style="width: 200px">'
+      + '<input id="lable_saveas" type="text" class="form-control" style="width: 200px">'
       + '</div>'
       + '<div style="display: table-cell;">'
-      + '<button type="button" class="btn blue " data-apply="popover" onclick="renameLable()"><i class="fa fa-check"></i></button></div>'
+      + '<button type="button" class="btn blue " data-apply="popover" onclick="saveAsLable()"><i class="fa fa-check"></i></button></div>'
       + '<div style="display: table-cell;">'
       + '<button type="button" class="btn default" data-dismiss="popover" onclick="cancelLable()"><i class="fa fa-times"></i></button>'
       + '</div></div></form>'
     ].join("");
 
-    $('#rename').popover({
+    $('#saveas').popover({
       html: true,
       trigger: "click",
       placement: 'top',
@@ -406,7 +426,7 @@ var QueryPatent = function () {
         $("#template").attr("disabled", "disabled").css("background-color", "grey");
         config.templateId = $(this).children("input[name='templateId']").val();
         $('#bookmark').css('display', 'none');
-        $('#rename').css('display', 'inline-block');
+        $('#saveas').css('display', 'inline-block');
         $('#save').css('display', 'inline-block');
         $('#delete').css('display', 'inline-block');
 
@@ -414,7 +434,7 @@ var QueryPatent = function () {
         $("#template").removeAttr("disabled").css("background-color", "");
         config.templateId = $('#template').val();
         $('#bookmark').css('display', 'inline-block');
-        $('#rename').css('display', 'none');
+        $('#saveas').css('display', 'none');
         $('#save').css('display', 'none');
         $('#delete').css('display', 'none');
       }
@@ -429,6 +449,7 @@ var QueryPatent = function () {
       config.left = 0;
       config.right = 0;
       config.filter = "";
+      config.search = "";
 
       loadPatentList();
 
@@ -472,6 +493,14 @@ var QueryPatent = function () {
       });
 
       config.visible = visible.join(',');
+      var search = new Array();
+      jQuery("#propertys .search").each(function () {
+        if (jQuery(this).is(":checked")) {
+          search.push($(this).parent().parent().prop("id"));
+        }
+      });
+
+      config.search = search.join(',');
       loadPatentList();
     });
 
@@ -499,6 +528,7 @@ function insertHtml(attr) {
     case 0:
     case 1:
     case 3:
+    case 7:
       str = '<div class="col-md-6 margin-top-10">'
           + '          <div class="form-group form-md-line-input">'
           + '            <select id="sign1-' + attr.sortId + '" class="form-control input-sm">'
@@ -661,6 +691,9 @@ function insertTitleHtml(type) {
     case 6:
       title = "计算";
       break;
+    case 7:
+      title = "系统配置";
+      break;
     default:
       title = "";
   }
@@ -675,7 +708,7 @@ function addCondition(id, type, name) {
     case 0:
     case 1:
     case 3:
-
+    case 7:
       if (value.length == 0) {
         value = "  r." + id + "/*" + name + "*/  " + $("#sign2-" + id).val() + "  \"%" + $("#condition-" + id).val() + "%\"";
       } else {
@@ -726,16 +759,19 @@ function advanceSearch() {
       },
       dataType: 'json',
       success: function (data) {
-
+        var searchable = config.search.split(',');
         var type = -1;
         for (var i = 0; i < data.length; i++) {
-          if (data[i].type != type) {
-            type = data[i].type;
-            $("#condition").append(insertTitleHtml(type));
+          if (config.search.length == 0 || searchable.in_array(data[i].sortId)) {
+            if (data[i].type != type) {
+              type = data[i].type;
+              $("#condition").append(insertTitleHtml(type));
 
+            }
+
+            $("#condition").append(insertHtml(data[i]));
           }
 
-          $("#condition").append(insertHtml(data[i]));
         }
 
         if (jQuery().datepicker) {
@@ -768,7 +804,8 @@ function saveLable() {
       "visible": config.visible,
       "left": config.left,
       "right": config.right,
-      "pageLength":config.pageLength
+      "pageLength":config.pageLength,
+      "search":config.search
     },
     dataType: 'json',
     success: function (data) {
@@ -788,17 +825,34 @@ function saveLable() {
   });
 }
 
-function renameLable() {
-
+function saveAsLable() {
+  config.pageLength = table.page.info().length;
   $.ajax({
-    url: http_request + "/patent/renameLable",
+    url: http_request + "/patent/saveLable",
     data: {
-      "configId": config.id,
-      "configname": $("#lable_rename").val()
+      "configId": 0,
+      "configname": $("#lable_saveas").val(),
+      "templateId": config.templateId,
+      "filter": config.filter,
+      "order": config.order,
+      "visible": config.visible,
+      "left": config.left,
+      "right": config.right,
+      "pageLength":config.pageLength,
+      "search":config.search
     },
     success: function (data) {
 
-      window.location.reload(true);
+      var tab = '<li>'
+        + '<a href="#" data-toggle="tab">' + $("#lable_saveas").val() + '</a>'
+        + '<input type="hidden" name="id" value="' + data.id + '"/>'
+        + '<input type="hidden" name="templateId" value="' + data.templateId + '"/>'
+        + '</li>';
+      $('#tabs').append(tab);
+
+      notify('', '添加标签' + $("#lable_saveas").val() + '成功！', '', '');
+
+      $('#saveas').popover('hide');
 
     }
   });
@@ -807,7 +861,7 @@ function renameLable() {
 function cancelLable() {
 
   $('#bookmark').popover('hide');
-  $('#rename').popover('hide');
+  $('#saveas').popover('hide');
 }
 
 function updateValue(td) {
@@ -816,7 +870,7 @@ function updateValue(td) {
 
   switch (config.columns[cell.data].type) {
     case 0:
-      value = $(td).parent().parent().find('input').val();
+      value = $(td).parent().parent().find('textarea').val();
       break;
     case 2:
       value = $(td).parent().parent().find('select option:selected').text();
@@ -857,6 +911,23 @@ function displaySwitch() {
   var checked = $('.group-display').is(':checked');
 
   jQuery(".display").each(function () {
+
+    if (checked) {
+
+      $(this).prop("checked", true);
+    } else {
+
+      $(this).prop("checked", false);
+    }
+  });
+};
+
+function searchSwitch() {
+
+
+  var checked = $('.group-search').is(':checked');
+
+  jQuery(".search").each(function () {
 
     if (checked) {
 

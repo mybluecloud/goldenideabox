@@ -311,7 +311,8 @@ public class PatentController {
             @RequestParam("visible") String visible,
             @RequestParam("left") int left,
             @RequestParam("right") int right,
-            @RequestParam("pageLength") int pageLength) {
+            @RequestParam("pageLength") int pageLength,
+            @RequestParam("search") String search) {
 
         Map<Object, Object> info = new HashMap<Object, Object>();
         if (configId == 0) {
@@ -325,6 +326,7 @@ public class PatentController {
             info.put("right", right);
             info.put("filter", filter);
             info.put("pageLength", pageLength);
+            info.put("search", search);
 
         } else {
             DisplayConfig config = patentService.getDisplayConfig(configId);
@@ -344,6 +346,9 @@ public class PatentController {
             if (right > 0) {
                 config.setRightFixedSum(right);
             }
+            if (search.length() > 0) {
+                config.setSearchList(search);
+            }
 
             List<Map<String, String>> columns = patentService
                     .selectPropertyName(config.getTemplateId(), config.getOrderList(), config.getVisibleList());
@@ -355,6 +360,7 @@ public class PatentController {
             info.put("right", config.getRightFixedSum());
             info.put("filter", config.getFilter());
             info.put("pageLength", config.getPageLength());
+            info.put("search", config.getSearchList());
         }
 
         return info;
@@ -427,7 +433,8 @@ public class PatentController {
             @RequestParam("visible") String visible,
             @RequestParam("left") int left,
             @RequestParam("right") int right,
-            @RequestParam("pageLength") int pageLength) {
+            @RequestParam("pageLength") int pageLength,
+            @RequestParam("search") String search) {
 
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         DisplayConfig config = new DisplayConfig();
@@ -441,6 +448,7 @@ public class PatentController {
             config.setLeftFixedSum(left);
             config.setRightFixedSum(right);
             config.setPageLength(pageLength);
+            config.setSearchList(search);
             patentService.saveDisplayConfig(config);
 
 
@@ -452,6 +460,7 @@ public class PatentController {
             config.setLeftFixedSum(left);
             config.setRightFixedSum(right);
             config.setPageLength(pageLength);
+            config.setSearchList(search);
             patentService.updateDisplayConfig(config);
         }
         return config;
@@ -495,7 +504,7 @@ public class PatentController {
     public Object patentProperty(@RequestParam(required = true) int id) {
 
         Map<Object, Object> info = new HashMap<Object, Object>();
-        Map<Integer, String> propertys = patentService.getPatentProperty(id);
+        Map<Integer, JSONObject> propertys = patentService.getPatentProperty(id);
         List<Document> docs = documentService.getDocumentByPatentID(id);
         info.put("propertys", propertys);
         info.put("documents", docs);

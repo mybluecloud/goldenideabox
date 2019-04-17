@@ -20,8 +20,8 @@ Array.prototype.remove = function (val) {
 Date.prototype.format = function (format) {
   var o = {
     "M+": this.getUTCMonth() + 1, //month
-    "d+": this.getUTCDate() ,    //day
-    "h+": this.getUTCHours() + 8,   //hour
+    "d+": this.getDate() ,    //day
+    "h+": this.getHours() ,   //hour
     "m+": this.getUTCMinutes(), //minute
     "s+": this.getUTCSeconds(), //second
     "q+": Math.floor((this.getUTCMonth() + 3) / 3),  //quarter
